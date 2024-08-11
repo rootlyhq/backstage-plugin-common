@@ -1,0 +1,35 @@
+export class RootlyApi {
+    static getCreateIncidentURL(): string;
+    static getListIncidents(): string;
+    static getListIncidentsForServiceURL(service: any): string;
+    static getListIncidentsForFunctionalityURL(functionality: any): string;
+    static getListIncidentsForTeamURL(team: any): string;
+    static getServiceDetailsURL(service: any): string;
+    static getFunctionalityDetailsURL(functionality: any): string;
+    static getTeamDetailsURL(team: any): string;
+    constructor(opts: any);
+    apiProxyPath: any;
+    apiToken: any;
+    fetch(input: any, init: any): Promise<any>;
+    call(input: any, init: any): Promise<void>;
+    addAuthHeaders(init: any): Promise<any>;
+    getService(id_or_slug: any): Promise<any>;
+    getServices(opts: any): Promise<any>;
+    getFunctionality(id_or_slug: any): Promise<any>;
+    getFunctionalities(opts: any): Promise<any>;
+    getTeam(id_or_slug: any): Promise<any>;
+    getTeams(opts: any): Promise<any>;
+    getIncidents(opts: any): Promise<any>;
+    getServiceIncidentsChart(service: any, opts: any): Promise<any>;
+    getFunctionalityIncidentsChart(functionality: any, opts: any): Promise<any>;
+    getTeamIncidentsChart(team: any, opts: any): Promise<any>;
+    importServiceEntity(entity: any): Promise<any>;
+    updateServiceEntity(entity: any, service: any, old_service: any): Promise<any>;
+    deleteServiceEntity(service: any): Promise<void>;
+    importFunctionalityEntity(entity: any): Promise<any>;
+    updateFunctionalityEntity(entity: any, functionality: any, old_functionality: any): Promise<any>;
+    deleteFunctionalityEntity(functionality: any): Promise<void>;
+    importTeamEntity(entity: any): Promise<any>;
+    updateTeamEntity(entity: any, team: any, old_team: any): Promise<any>;
+    deleteTeamEntity(team: any): Promise<void>;
+}
