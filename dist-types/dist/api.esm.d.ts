@@ -8,6 +8,7 @@ export class RootlyApi {
     static getFunctionalityDetailsURL(functionality: any): string;
     static getTeamDetailsURL(team: any): string;
     constructor(opts: any);
+    apiProxyUrl: any;
     apiProxyPath: any;
     apiToken: any;
     fetch(input: any, init: any): Promise<any>;

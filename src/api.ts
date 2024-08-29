@@ -150,15 +150,23 @@ export interface RootlyIncidentsResponse {
   };
 }
 
+const DEFAULT_PROXY_PATH = '/rootly/api';
+
 type Options = {
   /**
-   * apiProxyPath used to access Rootly API through proxy
-   * Example: https://localhost:7021/rootly/api
+   * apiProxyUrl used to access Rootly API through proxy
+   * Example: https://localhost:7021
    */
-  apiProxyPath: Promise<string>;
+  apiProxyUrl: Promise<string>;
 
   /**
-   * apiToken used to access Rootly API through proxy
+   * apiProxyPath used to access Rootly API through proxy
+   * Example: /rootly/api
+   */
+  apiProxyPath: string | undefined;
+
+  /**
+   * apiToken used to access Backstage backend
    * Example: Bearer 12345678910
    */
   apiToken: Promise<{ token?: string | undefined; }>;
@@ -168,20 +176,20 @@ type Options = {
  * API to talk to Rootly.
  */
 export class RootlyApi {
-  private readonly apiProxyPath: Promise<string>;
+  private readonly apiProxyUrl: Promise<string>;
+  private readonly apiProxyPath: string;
   private readonly apiToken: Promise<{ token?: string | undefined; }>;
 
   constructor(opts: Options) {
-    this.apiProxyPath = opts.apiProxyPath;
+    this.apiProxyUrl = opts.apiProxyUrl;
+    this.apiProxyPath = opts.apiProxyPath ?? DEFAULT_PROXY_PATH;
     this.apiToken = opts.apiToken;
   }
 
   private async fetch<T = any>(input: string, init?: RequestInit): Promise<T> {
-    const apiUrl = await this.apiProxyPath;
     const authedInit = await this.addAuthHeaders(init || {});
-    const rootlyEndpoint = "/rootly/api";
 
-    const resp = await fetch(`${apiUrl}${rootlyEndpoint}${input}`, authedInit);
+    const resp = await fetch(`${await this.apiProxyUrl}${this.apiProxyPath}${input}`, authedInit);
     if (!resp.ok) {
       throw new Error(`Request failed with ${resp.status} ${resp.statusText}`, {cause: {status: resp.status, statusText: resp.statusText}});
     }
@@ -190,11 +198,9 @@ export class RootlyApi {
   }
 
   private async call(input: string, init?: RequestInit): Promise<void> {
-    const apiUrl = await this.apiProxyPath;
     const authedInit = await this.addAuthHeaders(init || {});
-    const rootlyEndpoint = "/rootly/api";
 
-    const resp = await fetch(`${apiUrl}${rootlyEndpoint}${input}`, authedInit);
+    const resp = await fetch(`${await this.apiProxyUrl}${this.apiProxyPath}${input}`, authedInit);
     if (!resp.ok)
       throw new Error(`Request failed with ${resp.status}: ${resp.statusText}`, {cause: {status: resp.status, statusText: resp.statusText}});
   }

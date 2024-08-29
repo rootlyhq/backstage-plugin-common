@@ -18,28 +18,27 @@ const ROOTLY_ANNOTATION_TEAM_ID = "rootly.com/team-id";
 const ROOTLY_ANNOTATION_TEAM_SLUG = "rootly.com/team-slug";
 const ROOTLY_ANNOTATION_TEAM_AUTO_IMPORT = "rootly.com/team-auto-import";
 
+const DEFAULT_PROXY_PATH = "/rootly/api";
 class RootlyApi {
+  apiProxyUrl;
   apiProxyPath;
   apiToken;
   constructor(opts) {
-    this.apiProxyPath = opts.apiProxyPath;
+    this.apiProxyUrl = opts.apiProxyUrl;
+    this.apiProxyPath = opts.apiProxyPath ?? DEFAULT_PROXY_PATH;
     this.apiToken = opts.apiToken;
   }
   async fetch(input, init) {
-    const apiUrl = await this.apiProxyPath;
     const authedInit = await this.addAuthHeaders(init || {});
-    const rootlyEndpoint = "/rootly/api";
-    const resp = await fetch(`${apiUrl}${rootlyEndpoint}${input}`, authedInit);
+    const resp = await fetch(`${await this.apiProxyUrl}${this.apiProxyPath}${input}`, authedInit);
     if (!resp.ok) {
       throw new Error(`Request failed with ${resp.status} ${resp.statusText}`, { cause: { status: resp.status, statusText: resp.statusText } });
     }
     return await resp.json();
   }
   async call(input, init) {
-    const apiUrl = await this.apiProxyPath;
     const authedInit = await this.addAuthHeaders(init || {});
-    const rootlyEndpoint = "/rootly/api";
-    const resp = await fetch(`${apiUrl}${rootlyEndpoint}${input}`, authedInit);
+    const resp = await fetch(`${await this.apiProxyUrl}${this.apiProxyPath}${input}`, authedInit);
     if (!resp.ok)
       throw new Error(`Request failed with ${resp.status}: ${resp.statusText}`, { cause: { status: resp.status, statusText: resp.statusText } });
   }

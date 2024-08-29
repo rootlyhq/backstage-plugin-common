@@ -119,12 +119,17 @@ export interface RootlyIncidentsResponse {
 }
 type Options = {
     /**
-     * apiProxyPath used to access Rootly API through proxy
-     * Example: https://localhost:7021/rootly/api
+     * apiProxyUrl used to access Rootly API through proxy
+     * Example: https://localhost:7021
      */
-    apiProxyPath: Promise<string>;
+    apiProxyUrl: Promise<string>;
     /**
-     * apiToken used to access Rootly API through proxy
+     * apiProxyPath used to access Rootly API through proxy
+     * Example: /rootly/api
+     */
+    apiProxyPath: string | undefined;
+    /**
+     * apiToken used to access Backstage backend
      * Example: Bearer 12345678910
      */
     apiToken: Promise<{
@@ -135,6 +140,7 @@ type Options = {
  * API to talk to Rootly.
  */
 export declare class RootlyApi {
+    private readonly apiProxyUrl;
     private readonly apiProxyPath;
     private readonly apiToken;
     constructor(opts: Options);
