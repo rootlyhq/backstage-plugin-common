@@ -1,6 +1,6 @@
 import { stringifyEntityRef } from '@backstage/catalog-model';
 import qs from 'qs';
-import { RootlyEntity, RootlyIncident, RootlyService, RootlyFunctionality, RootlyTeam } from '@rootly/backstage-plugin-common';
+import { RootlyEntity, RootlyIncident, RootlyService, RootlyFunctionality, RootlyTeam, ROOTLY_ANNOTATION_FUNCTIONALITY_NAME, ROOTLY_ANNOTATION_TEAM_NAME, ROOTLY_ANNOTATION_SERVICE_NAME } from '@rootly/backstage-plugin-common';
 
 export type RootlyServicesFetchOpts = {
   page?: {
@@ -339,7 +339,7 @@ export class RootlyApi {
         data: {
           type: 'services',
           attributes: {
-            name: entity.metadata.name,
+            name: entity.metadata.annotations?.[ROOTLY_ANNOTATION_SERVICE_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
             pagerduty_id: entity.metadata.annotations?.['pagerduty.com/service-id'],
@@ -387,7 +387,7 @@ export class RootlyApi {
         data: {
           type: 'services',
           attributes: {
-            name: entity.metadata.name,
+            name: entity.metadata.annotations?.[ROOTLY_ANNOTATION_SERVICE_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
             pagerduty_id: entity.metadata.annotations?.['pagerduty.com/service-id'],
@@ -430,7 +430,7 @@ export class RootlyApi {
         data: {
           type: 'functionalities',
           attributes: {
-            name: entity.metadata.name,
+            name: entity.metadata.annotations?.[ROOTLY_ANNOTATION_FUNCTIONALITY_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
             pagerduty_id: entity.metadata.annotations?.['pagerduty.com/service-id'],
@@ -478,7 +478,7 @@ export class RootlyApi {
         data: {
           type: 'functionalities',
           attributes: {
-            name: entity.metadata.name,
+            name: entity.metadata.annotations?.[ROOTLY_ANNOTATION_FUNCTIONALITY_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
             pagerduty_id: entity.metadata.annotations?.['pagerduty.com/service-id'],
@@ -521,7 +521,7 @@ export class RootlyApi {
         data: {
           type: 'teams',
           attributes: {
-            name: entity.metadata.name,
+            name: entity.metadata.annotations?.[ROOTLY_ANNOTATION_TEAM_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
             pagerduty_id: entity.metadata.annotations?.['pagerduty.com/service-id'],
@@ -569,7 +569,7 @@ export class RootlyApi {
         data: {
           type: 'teams',
           attributes: {
-            name: entity.metadata.name,
+            name: entity.metadata.annotations?.[ROOTLY_ANNOTATION_TEAM_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
             pagerduty_id: entity.metadata.annotations?.['pagerduty.com/service-id'],
