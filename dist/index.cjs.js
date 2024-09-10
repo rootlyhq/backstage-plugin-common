@@ -2,6 +2,7 @@
 
 var catalogModel = require('@backstage/catalog-model');
 var qs = require('qs');
+var backstagePluginCommon = require('@rootly/backstage-plugin-common');
 
 function _interopDefaultCompat (e) { return e && typeof e === 'object' && 'default' in e ? e : { default: e }; }
 
@@ -9,12 +10,15 @@ var qs__default = /*#__PURE__*/_interopDefaultCompat(qs);
 
 const ROOTLY_ANNOTATION_ORG_ID = "rootly.com/organization-id";
 const ROOTLY_ANNOTATION_SERVICE_ID = "rootly.com/service-id";
+const ROOTLY_ANNOTATION_SERVICE_NAME = "rootly.com/service-name";
 const ROOTLY_ANNOTATION_SERVICE_SLUG = "rootly.com/service-slug";
 const ROOTLY_ANNOTATION_SERVICE_AUTO_IMPORT = "rootly.com/service-auto-import";
+const ROOTLY_ANNOTATION_FUNCTIONALITY_NAME = "rootly.com/functionality-name";
 const ROOTLY_ANNOTATION_FUNCTIONALITY_ID = "rootly.com/functionality-id";
 const ROOTLY_ANNOTATION_FUNCTIONALITY_SLUG = "rootly.com/functionality-slug";
 const ROOTLY_ANNOTATION_FUNCTIONALITY_AUTO_IMPORT = "rootly.com/functionality-auto-import";
 const ROOTLY_ANNOTATION_TEAM_ID = "rootly.com/team-id";
+const ROOTLY_ANNOTATION_TEAM_NAME = "rootly.com/team-name";
 const ROOTLY_ANNOTATION_TEAM_SLUG = "rootly.com/team-slug";
 const ROOTLY_ANNOTATION_TEAM_AUTO_IMPORT = "rootly.com/team-auto-import";
 
@@ -153,7 +157,7 @@ class RootlyApi {
         data: {
           type: "services",
           attributes: {
-            name: entity.metadata.name,
+            name: entity.metadata.annotations?.[backstagePluginCommon.ROOTLY_ANNOTATION_SERVICE_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
             pagerduty_id: entity.metadata.annotations?.["pagerduty.com/service-id"]
@@ -192,7 +196,7 @@ class RootlyApi {
         data: {
           type: "services",
           attributes: {
-            name: entity.metadata.name,
+            name: entity.metadata.annotations?.[backstagePluginCommon.ROOTLY_ANNOTATION_SERVICE_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
             pagerduty_id: entity.metadata.annotations?.["pagerduty.com/service-id"]
@@ -231,7 +235,7 @@ class RootlyApi {
         data: {
           type: "functionalities",
           attributes: {
-            name: entity.metadata.name,
+            name: entity.metadata.annotations?.[backstagePluginCommon.ROOTLY_ANNOTATION_FUNCTIONALITY_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
             pagerduty_id: entity.metadata.annotations?.["pagerduty.com/service-id"]
@@ -270,7 +274,7 @@ class RootlyApi {
         data: {
           type: "functionalities",
           attributes: {
-            name: entity.metadata.name,
+            name: entity.metadata.annotations?.[backstagePluginCommon.ROOTLY_ANNOTATION_FUNCTIONALITY_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
             pagerduty_id: entity.metadata.annotations?.["pagerduty.com/service-id"]
@@ -309,7 +313,7 @@ class RootlyApi {
         data: {
           type: "teams",
           attributes: {
-            name: entity.metadata.name,
+            name: entity.metadata.annotations?.[backstagePluginCommon.ROOTLY_ANNOTATION_TEAM_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
             pagerduty_id: entity.metadata.annotations?.["pagerduty.com/service-id"]
@@ -348,7 +352,7 @@ class RootlyApi {
         data: {
           type: "teams",
           attributes: {
-            name: entity.metadata.name,
+            name: entity.metadata.annotations?.[backstagePluginCommon.ROOTLY_ANNOTATION_TEAM_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
             pagerduty_id: entity.metadata.annotations?.["pagerduty.com/service-id"]
@@ -414,13 +418,16 @@ class RootlyApi {
 
 exports.ROOTLY_ANNOTATION_FUNCTIONALITY_AUTO_IMPORT = ROOTLY_ANNOTATION_FUNCTIONALITY_AUTO_IMPORT;
 exports.ROOTLY_ANNOTATION_FUNCTIONALITY_ID = ROOTLY_ANNOTATION_FUNCTIONALITY_ID;
+exports.ROOTLY_ANNOTATION_FUNCTIONALITY_NAME = ROOTLY_ANNOTATION_FUNCTIONALITY_NAME;
 exports.ROOTLY_ANNOTATION_FUNCTIONALITY_SLUG = ROOTLY_ANNOTATION_FUNCTIONALITY_SLUG;
 exports.ROOTLY_ANNOTATION_ORG_ID = ROOTLY_ANNOTATION_ORG_ID;
 exports.ROOTLY_ANNOTATION_SERVICE_AUTO_IMPORT = ROOTLY_ANNOTATION_SERVICE_AUTO_IMPORT;
 exports.ROOTLY_ANNOTATION_SERVICE_ID = ROOTLY_ANNOTATION_SERVICE_ID;
+exports.ROOTLY_ANNOTATION_SERVICE_NAME = ROOTLY_ANNOTATION_SERVICE_NAME;
 exports.ROOTLY_ANNOTATION_SERVICE_SLUG = ROOTLY_ANNOTATION_SERVICE_SLUG;
 exports.ROOTLY_ANNOTATION_TEAM_AUTO_IMPORT = ROOTLY_ANNOTATION_TEAM_AUTO_IMPORT;
 exports.ROOTLY_ANNOTATION_TEAM_ID = ROOTLY_ANNOTATION_TEAM_ID;
+exports.ROOTLY_ANNOTATION_TEAM_NAME = ROOTLY_ANNOTATION_TEAM_NAME;
 exports.ROOTLY_ANNOTATION_TEAM_SLUG = ROOTLY_ANNOTATION_TEAM_SLUG;
 exports.RootlyApi = RootlyApi;
 //# sourceMappingURL=index.cjs.js.map
