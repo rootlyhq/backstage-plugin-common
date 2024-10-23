@@ -160,6 +160,7 @@ export interface RootlyIncident {
 }
 /** @public */
 export interface RootlyEntity extends BackstageEntity {
+    rootlyKind: string | undefined;
     linkedService: RootlyService | undefined;
     linkedFunctionality: RootlyFunctionality | undefined;
     linkedTeam: RootlyTeam | undefined;

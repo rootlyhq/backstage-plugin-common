@@ -144,6 +144,7 @@ export declare class RootlyApi {
     private readonly apiProxyPath;
     private readonly apiToken;
     constructor(opts: Options);
+    private removeEmptyAttributes;
     private fetch;
     private call;
     private addAuthHeaders;

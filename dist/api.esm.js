@@ -12,19 +12,43 @@ class RootlyApi {
     this.apiProxyPath = opts.apiProxyPath ?? DEFAULT_PROXY_PATH;
     this.apiToken = opts.apiToken;
   }
+  removeEmptyAttributes(obj) {
+    if (typeof obj !== "object" || obj === null) {
+      return obj;
+    }
+    if (Array.isArray(obj)) {
+      return obj.map(this.removeEmptyAttributes);
+    }
+    return Object.fromEntries(
+      Object.entries(obj).filter(
+        ([_, value]) => value !== "" && value !== null && value !== void 0
+      ).map(([key, value]) => [key, this.removeEmptyAttributes(value)])
+    );
+  }
   async fetch(input, init) {
     const authedInit = await this.addAuthHeaders(init || {});
-    const resp = await fetch(`${await this.apiProxyUrl}${this.apiProxyPath}${input}`, authedInit);
+    const resp = await fetch(
+      `${await this.apiProxyUrl}${this.apiProxyPath}${input}`,
+      authedInit
+    );
     if (!resp.ok) {
-      throw new Error(`Request failed with ${resp.status} ${resp.statusText}`, { cause: { status: resp.status, statusText: resp.statusText } });
+      throw new Error(`Request failed with ${resp.status} ${resp.statusText}`, {
+        cause: { status: resp.status, statusText: resp.statusText }
+      });
     }
     return await resp.json();
   }
   async call(input, init) {
     const authedInit = await this.addAuthHeaders(init || {});
-    const resp = await fetch(`${await this.apiProxyUrl}${this.apiProxyPath}${input}`, authedInit);
+    const resp = await fetch(
+      `${await this.apiProxyUrl}${this.apiProxyPath}${input}`,
+      authedInit
+    );
     if (!resp.ok)
-      throw new Error(`Request failed with ${resp.status}: ${resp.statusText}`, { cause: { status: resp.status, statusText: resp.statusText } });
+      throw new Error(
+        `Request failed with ${resp.status}: ${resp.statusText}`,
+        { cause: { status: resp.status, statusText: resp.statusText } }
+      );
   }
   async addAuthHeaders(init) {
     const headers = init.headers || {};
@@ -47,7 +71,7 @@ class RootlyApi {
   }
   async getServices(opts) {
     const init = { headers: { "Content-Type": "application/vnd.api+json" } };
-    const params = qs.stringify(opts, { encode: false });
+    const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });
     const response = await this.fetch(
       `/v1/services?${params}`,
       init
@@ -64,7 +88,7 @@ class RootlyApi {
   }
   async getFunctionalities(opts) {
     const init = { headers: { "Content-Type": "application/vnd.api+json" } };
-    const params = qs.stringify(opts, { encode: false });
+    const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });
     const response = await this.fetch(
       `/v1/functionalities?${params}`,
       init
@@ -81,7 +105,7 @@ class RootlyApi {
   }
   async getTeams(opts) {
     const init = { headers: { "Content-Type": "application/vnd.api+json" } };
-    const params = qs.stringify(opts, { encode: false });
+    const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });
     const response = await this.fetch(
       `/v1/teams?${params}`,
       init
@@ -90,7 +114,7 @@ class RootlyApi {
   }
   async getIncidents(opts) {
     const init = { headers: { "Content-Type": "application/vnd.api+json" } };
-    const params = qs.stringify(opts, { encode: false });
+    const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });
     const response = await this.fetch(
       `/v1/incidents?${params}`,
       init
@@ -99,7 +123,7 @@ class RootlyApi {
   }
   async getServiceIncidentsChart(service, opts) {
     const init = { headers: { "Content-Type": "application/vnd.api+json" } };
-    const params = qs.stringify(opts, { encode: false });
+    const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });
     const response = await this.fetch(
       `/v1/services/${service.id}/incidents_chart?${params}`,
       init
@@ -108,7 +132,7 @@ class RootlyApi {
   }
   async getFunctionalityIncidentsChart(functionality, opts) {
     const init = { headers: { "Content-Type": "application/vnd.api+json" } };
-    const params = qs.stringify(opts, { encode: false });
+    const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });
     const response = await this.fetch(
       `/v1/functionalities/${functionality.id}/incidents_chart?${params}`,
       init
@@ -117,7 +141,7 @@ class RootlyApi {
   }
   async getTeamIncidentsChart(team, opts) {
     const init = { headers: { "Content-Type": "application/vnd.api+json" } };
-    const params = qs.stringify(opts, { encode: false });
+    const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });
     const response = await this.fetch(
       `/v1/teams/${team.id}/incidents_chart?${params}`,
       init
@@ -184,7 +208,10 @@ class RootlyApi {
         }
       })
     };
-    const response = this.fetch(`/v1/services/${service.id}`, init2);
+    const response = this.fetch(
+      `/v1/services/${service.id}`,
+      init2
+    );
     return response;
   }
   async deleteServiceEntity(service) {
@@ -223,7 +250,10 @@ class RootlyApi {
         }
       })
     };
-    const response = this.fetch(`/v1/functionalities`, init);
+    const response = this.fetch(
+      `/v1/functionalities`,
+      init
+    );
     return response;
   }
   async updateFunctionalityEntity(entity, functionality, old_functionality) {
@@ -262,7 +292,10 @@ class RootlyApi {
         }
       })
     };
-    const response = this.fetch(`/v1/functionalities/${functionality.id}`, init2);
+    const response = this.fetch(
+      `/v1/functionalities/${functionality.id}`,
+      init2
+    );
     return response;
   }
   async deleteFunctionalityEntity(functionality) {
@@ -340,7 +373,10 @@ class RootlyApi {
         }
       })
     };
-    const response = this.fetch(`/v1/teams/${team.id}`, init2);
+    const response = this.fetch(
+      `/v1/teams/${team.id}`,
+      init2
+    );
     return response;
   }
   async deleteTeamEntity(team) {

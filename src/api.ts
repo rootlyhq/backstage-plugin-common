@@ -1,6 +1,15 @@
 import { stringifyEntityRef } from '@backstage/catalog-model';
 import qs from 'qs';
-import { RootlyEntity, RootlyIncident, RootlyService, RootlyFunctionality, RootlyTeam, ROOTLY_ANNOTATION_FUNCTIONALITY_NAME, ROOTLY_ANNOTATION_TEAM_NAME, ROOTLY_ANNOTATION_SERVICE_NAME } from '@rootly/backstage-plugin-common';
+import {
+  RootlyEntity,
+  RootlyIncident,
+  RootlyService,
+  RootlyFunctionality,
+  RootlyTeam,
+  ROOTLY_ANNOTATION_FUNCTIONALITY_NAME,
+  ROOTLY_ANNOTATION_TEAM_NAME,
+  ROOTLY_ANNOTATION_SERVICE_NAME,
+} from '@rootly/backstage-plugin-common';
 
 export type RootlyServicesFetchOpts = {
   page?: {
@@ -47,7 +56,9 @@ export interface Rootly {
   ): Promise<RootlyFunctionalitiesResponse>;
   getTeam(id_or_slug: String): Promise<RootlyTeamResponse>;
   getTeams(opts?: RootlyTeamsFetchOpts): Promise<RootlyTeamsResponse>;
-  getIncidents(opts?: RootlyIncidentsFetchOpts): Promise<RootlyIncidentsResponse>;
+  getIncidents(
+    opts?: RootlyIncidentsFetchOpts,
+  ): Promise<RootlyIncidentsResponse>;
 
   importServiceEntity(entity: RootlyEntity): Promise<RootlyServiceResponse>;
   updateServiceEntity(
@@ -57,7 +68,9 @@ export interface Rootly {
   ): Promise<RootlyServiceResponse>;
   deleteServiceEntity(service: RootlyService): Promise<void>;
 
-  importFunctionalityEntity(entity: RootlyEntity): Promise<RootlyFunctionalityResponse>;
+  importFunctionalityEntity(
+    entity: RootlyEntity,
+  ): Promise<RootlyFunctionalityResponse>;
   updateFunctionalityEntity(
     entity: RootlyEntity,
     functionality: RootlyFunctionality,
@@ -83,7 +96,9 @@ export interface Rootly {
     opts?: { period: string },
   ): Promise<{ data: object }>;
 
-  getListIncidentsForFunctionalityURL(functionality: RootlyFunctionality): string;
+  getListIncidentsForFunctionalityURL(
+    functionality: RootlyFunctionality,
+  ): string;
   getFunctionalityDetailsURL(functionality: RootlyFunctionality): string;
   getFunctionalityIncidentsChart(
     functionality: RootlyFunctionality,
@@ -169,7 +184,7 @@ type Options = {
    * apiToken used to access Backstage backend
    * Example: Bearer 12345678910
    */
-  apiToken: Promise<{ token?: string | undefined; }>;
+  apiToken: Promise<{ token?: string | undefined }>;
 };
 
 /**
@@ -178,7 +193,7 @@ type Options = {
 export class RootlyApi {
   private readonly apiProxyUrl: Promise<string>;
   private readonly apiProxyPath: string;
-  private readonly apiToken: Promise<{ token?: string | undefined; }>;
+  private readonly apiToken: Promise<{ token?: string | undefined }>;
 
   constructor(opts: Options) {
     this.apiProxyUrl = opts.apiProxyUrl;
@@ -186,12 +201,35 @@ export class RootlyApi {
     this.apiToken = opts.apiToken;
   }
 
+  private removeEmptyAttributes<T>(obj: T): T {
+    if (typeof obj !== 'object' || obj === null) {
+      return obj; // Return the value if it's not an object
+    }
+
+    if (Array.isArray(obj)) {
+      return obj.map(this.removeEmptyAttributes) as unknown as T; // Recursively apply to array elements
+    }
+
+    return Object.fromEntries(
+      Object.entries(obj as Record<string, any>)
+        .filter(
+          ([_, value]) => value !== '' && value !== null && value !== undefined,
+        )
+        .map(([key, value]) => [key, this.removeEmptyAttributes(value)]),
+    ) as T;
+  }
+
   private async fetch<T = any>(input: string, init?: RequestInit): Promise<T> {
     const authedInit = await this.addAuthHeaders(init || {});
 
-    const resp = await fetch(`${await this.apiProxyUrl}${this.apiProxyPath}${input}`, authedInit);
+    const resp = await fetch(
+      `${await this.apiProxyUrl}${this.apiProxyPath}${input}`,
+      authedInit,
+    );
     if (!resp.ok) {
-      throw new Error(`Request failed with ${resp.status} ${resp.statusText}`, {cause: {status: resp.status, statusText: resp.statusText}});
+      throw new Error(`Request failed with ${resp.status} ${resp.statusText}`, {
+        cause: { status: resp.status, statusText: resp.statusText },
+      });
     }
 
     return await resp.json();
@@ -200,9 +238,15 @@ export class RootlyApi {
   private async call(input: string, init?: RequestInit): Promise<void> {
     const authedInit = await this.addAuthHeaders(init || {});
 
-    const resp = await fetch(`${await this.apiProxyUrl}${this.apiProxyPath}${input}`, authedInit);
+    const resp = await fetch(
+      `${await this.apiProxyUrl}${this.apiProxyPath}${input}`,
+      authedInit,
+    );
     if (!resp.ok)
-      throw new Error(`Request failed with ${resp.status}: ${resp.statusText}`, {cause: {status: resp.status, statusText: resp.statusText}});
+      throw new Error(
+        `Request failed with ${resp.status}: ${resp.statusText}`,
+        { cause: { status: resp.status, statusText: resp.statusText } },
+      );
   }
 
   private async addAuthHeaders(init: RequestInit): Promise<RequestInit> {
@@ -227,9 +271,11 @@ export class RootlyApi {
     return response;
   }
 
-  async getServices(opts?: RootlyServicesFetchOpts): Promise<RootlyServicesResponse> {
+  async getServices(
+    opts?: RootlyServicesFetchOpts,
+  ): Promise<RootlyServicesResponse> {
     const init = { headers: { 'Content-Type': 'application/vnd.api+json' } };
-    const params = qs.stringify(opts, { encode: false });
+    const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });
     const response = await this.fetch<RootlyServicesResponse>(
       `/v1/services?${params}`,
       init,
@@ -237,7 +283,9 @@ export class RootlyApi {
     return response;
   }
 
-  async getFunctionality(id_or_slug: String): Promise<RootlyFunctionalityResponse> {
+  async getFunctionality(
+    id_or_slug: String,
+  ): Promise<RootlyFunctionalityResponse> {
     const init = { headers: { 'Content-Type': 'application/vnd.api+json' } };
     const response = await this.fetch<RootlyFunctionalityResponse>(
       `/v1/functionalities/${id_or_slug}`,
@@ -250,7 +298,7 @@ export class RootlyApi {
     opts?: RootlyFunctionalitiesFetchOpts,
   ): Promise<RootlyFunctionalitiesResponse> {
     const init = { headers: { 'Content-Type': 'application/vnd.api+json' } };
-    const params = qs.stringify(opts, { encode: false });
+    const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });
     const response = await this.fetch<RootlyFunctionalitiesResponse>(
       `/v1/functionalities?${params}`,
       init,
@@ -269,7 +317,7 @@ export class RootlyApi {
 
   async getTeams(opts?: RootlyTeamsFetchOpts): Promise<RootlyTeamsResponse> {
     const init = { headers: { 'Content-Type': 'application/vnd.api+json' } };
-    const params = qs.stringify(opts, { encode: false });
+    const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });
     const response = await this.fetch<RootlyTeamsResponse>(
       `/v1/teams?${params}`,
       init,
@@ -277,9 +325,11 @@ export class RootlyApi {
     return response;
   }
 
-  async getIncidents(opts?: RootlyIncidentsFetchOpts): Promise<RootlyIncidentsResponse> {
+  async getIncidents(
+    opts?: RootlyIncidentsFetchOpts,
+  ): Promise<RootlyIncidentsResponse> {
     const init = { headers: { 'Content-Type': 'application/vnd.api+json' } };
-    const params = qs.stringify(opts, { encode: false });
+    const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });
     const response = await this.fetch<RootlyIncidentsResponse>(
       `/v1/incidents?${params}`,
       init,
@@ -292,7 +342,7 @@ export class RootlyApi {
     opts?: { period: string },
   ): Promise<{ data: object }> {
     const init = { headers: { 'Content-Type': 'application/vnd.api+json' } };
-    const params = qs.stringify(opts, { encode: false });
+    const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });
     const response = await this.fetch<{ data: object }>(
       `/v1/services/${service.id}/incidents_chart?${params}`,
       init,
@@ -305,7 +355,7 @@ export class RootlyApi {
     opts?: { period: string },
   ): Promise<{ data: object }> {
     const init = { headers: { 'Content-Type': 'application/vnd.api+json' } };
-    const params = qs.stringify(opts, { encode: false });
+    const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });
     const response = await this.fetch<{ data: object }>(
       `/v1/functionalities/${functionality.id}/incidents_chart?${params}`,
       init,
@@ -318,7 +368,7 @@ export class RootlyApi {
     opts?: { period: string },
   ): Promise<{ data: object }> {
     const init = { headers: { 'Content-Type': 'application/vnd.api+json' } };
-    const params = qs.stringify(opts, { encode: false });
+    const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });
     const response = await this.fetch<{ data: object }>(
       `/v1/teams/${team.id}/incidents_chart?${params}`,
       init,
@@ -326,7 +376,9 @@ export class RootlyApi {
     return response;
   }
 
-  async importServiceEntity(entity: RootlyEntity): Promise<RootlyServiceResponse> {
+  async importServiceEntity(
+    entity: RootlyEntity,
+  ): Promise<RootlyServiceResponse> {
     const entityTriplet = stringifyEntityRef({
       namespace: entity.metadata.namespace,
       kind: entity.kind,
@@ -339,10 +391,13 @@ export class RootlyApi {
         data: {
           type: 'services',
           attributes: {
-            name: entity.metadata.annotations?.[ROOTLY_ANNOTATION_SERVICE_NAME] || entity.metadata.name,
+            name:
+              entity.metadata.annotations?.[ROOTLY_ANNOTATION_SERVICE_NAME] ||
+              entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
-            pagerduty_id: entity.metadata.annotations?.['pagerduty.com/service-id'],
+            pagerduty_id:
+              entity.metadata.annotations?.['pagerduty.com/service-id'],
           },
         },
       }),
@@ -387,16 +442,22 @@ export class RootlyApi {
         data: {
           type: 'services',
           attributes: {
-            name: entity.metadata.annotations?.[ROOTLY_ANNOTATION_SERVICE_NAME] || entity.metadata.name,
+            name:
+              entity.metadata.annotations?.[ROOTLY_ANNOTATION_SERVICE_NAME] ||
+              entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
-            pagerduty_id: entity.metadata.annotations?.['pagerduty.com/service-id'],
+            pagerduty_id:
+              entity.metadata.annotations?.['pagerduty.com/service-id'],
           },
         },
       }),
     };
 
-    const response = this.fetch<RootlyServiceResponse>(`/v1/services/${service.id}`, init2);
+    const response = this.fetch<RootlyServiceResponse>(
+      `/v1/services/${service.id}`,
+      init2,
+    );
     return response;
   }
 
@@ -417,7 +478,9 @@ export class RootlyApi {
     await this.call(`/v1/services/${service.id}`, init);
   }
 
-  async importFunctionalityEntity(entity: RootlyEntity): Promise<RootlyFunctionalityResponse> {
+  async importFunctionalityEntity(
+    entity: RootlyEntity,
+  ): Promise<RootlyFunctionalityResponse> {
     const entityTriplet = stringifyEntityRef({
       namespace: entity.metadata.namespace,
       kind: entity.kind,
@@ -430,16 +493,23 @@ export class RootlyApi {
         data: {
           type: 'functionalities',
           attributes: {
-            name: entity.metadata.annotations?.[ROOTLY_ANNOTATION_FUNCTIONALITY_NAME] || entity.metadata.name,
+            name:
+              entity.metadata.annotations?.[
+                ROOTLY_ANNOTATION_FUNCTIONALITY_NAME
+              ] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
-            pagerduty_id: entity.metadata.annotations?.['pagerduty.com/service-id'],
+            pagerduty_id:
+              entity.metadata.annotations?.['pagerduty.com/service-id'],
           },
         },
       }),
     };
 
-    const response = this.fetch<RootlyFunctionalityResponse>(`/v1/functionalities`, init);
+    const response = this.fetch<RootlyFunctionalityResponse>(
+      `/v1/functionalities`,
+      init,
+    );
     return response;
   }
 
@@ -478,20 +548,29 @@ export class RootlyApi {
         data: {
           type: 'functionalities',
           attributes: {
-            name: entity.metadata.annotations?.[ROOTLY_ANNOTATION_FUNCTIONALITY_NAME] || entity.metadata.name,
+            name:
+              entity.metadata.annotations?.[
+                ROOTLY_ANNOTATION_FUNCTIONALITY_NAME
+              ] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
-            pagerduty_id: entity.metadata.annotations?.['pagerduty.com/service-id'],
+            pagerduty_id:
+              entity.metadata.annotations?.['pagerduty.com/service-id'],
           },
         },
       }),
     };
 
-    const response = this.fetch<RootlyFunctionalityResponse>(`/v1/functionalities/${functionality.id}`, init2);
+    const response = this.fetch<RootlyFunctionalityResponse>(
+      `/v1/functionalities/${functionality.id}`,
+      init2,
+    );
     return response;
   }
 
-  async deleteFunctionalityEntity(functionality: RootlyFunctionality): Promise<void> {
+  async deleteFunctionalityEntity(
+    functionality: RootlyFunctionality,
+  ): Promise<void> {
     const init = {
       method: 'PUT',
       headers: { 'Content-Type': 'application/vnd.api+json' },
@@ -521,10 +600,13 @@ export class RootlyApi {
         data: {
           type: 'teams',
           attributes: {
-            name: entity.metadata.annotations?.[ROOTLY_ANNOTATION_TEAM_NAME] || entity.metadata.name,
+            name:
+              entity.metadata.annotations?.[ROOTLY_ANNOTATION_TEAM_NAME] ||
+              entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
-            pagerduty_id: entity.metadata.annotations?.['pagerduty.com/service-id'],
+            pagerduty_id:
+              entity.metadata.annotations?.['pagerduty.com/service-id'],
           },
         },
       }),
@@ -569,16 +651,22 @@ export class RootlyApi {
         data: {
           type: 'teams',
           attributes: {
-            name: entity.metadata.annotations?.[ROOTLY_ANNOTATION_TEAM_NAME] || entity.metadata.name,
+            name:
+              entity.metadata.annotations?.[ROOTLY_ANNOTATION_TEAM_NAME] ||
+              entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
-            pagerduty_id: entity.metadata.annotations?.['pagerduty.com/service-id'],
+            pagerduty_id:
+              entity.metadata.annotations?.['pagerduty.com/service-id'],
           },
         },
       }),
     };
 
-    const response = this.fetch<RootlyTeamResponse>(`/v1/teams/${team.id}`, init2);
+    const response = this.fetch<RootlyTeamResponse>(
+      `/v1/teams/${team.id}`,
+      init2,
+    );
     return response;
   }
 
@@ -609,15 +697,17 @@ export class RootlyApi {
 
   static getListIncidentsForServiceURL(service: RootlyService): string {
     const params = qs.stringify(
-      { filter: { filters: ["services"], services: [service.id]} },
+      { filter: { filters: ['services'], services: [service.id] } },
       { arrayFormat: 'brackets' },
     );
     return `https://rootly.com/account/incidents?${params}`;
   }
 
-  static getListIncidentsForFunctionalityURL(functionality: RootlyFunctionality): string {
+  static getListIncidentsForFunctionalityURL(
+    functionality: RootlyFunctionality,
+  ): string {
     const params = qs.stringify(
-      { filter: { filters: ["functionalities"], groups: [functionality.id]} },
+      { filter: { filters: ['functionalities'], groups: [functionality.id] } },
       { arrayFormat: 'brackets' },
     );
     return `https://rootly.com/account/incidents?${params}`;
@@ -625,7 +715,7 @@ export class RootlyApi {
 
   static getListIncidentsForTeamURL(team: RootlyTeam): string {
     const params = qs.stringify(
-      { filter: { filters: ["groups"], groups: [team.id]} },
+      { filter: { filters: ['groups'], groups: [team.id] } },
       { arrayFormat: 'brackets' },
     );
     return `https://rootly.com/account/incidents?${params}`;
@@ -635,7 +725,9 @@ export class RootlyApi {
     return `https://rootly.com/account/services/${service.attributes.slug}`;
   }
 
-  static getFunctionalityDetailsURL(functionality: RootlyFunctionality): string {
+  static getFunctionalityDetailsURL(
+    functionality: RootlyFunctionality,
+  ): string {
     return `https://rootly.com/account/functionalities/${functionality.attributes.slug}`;
   }
 

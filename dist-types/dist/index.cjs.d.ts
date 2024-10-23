@@ -1,12 +1,15 @@
 export const ROOTLY_ANNOTATION_FUNCTIONALITY_AUTO_IMPORT: "rootly.com/functionality-auto-import";
 export const ROOTLY_ANNOTATION_FUNCTIONALITY_ID: "rootly.com/functionality-id";
+export const ROOTLY_ANNOTATION_FUNCTIONALITY_NAME: "rootly.com/functionality-name";
 export const ROOTLY_ANNOTATION_FUNCTIONALITY_SLUG: "rootly.com/functionality-slug";
 export const ROOTLY_ANNOTATION_ORG_ID: "rootly.com/organization-id";
 export const ROOTLY_ANNOTATION_SERVICE_AUTO_IMPORT: "rootly.com/service-auto-import";
 export const ROOTLY_ANNOTATION_SERVICE_ID: "rootly.com/service-id";
+export const ROOTLY_ANNOTATION_SERVICE_NAME: "rootly.com/service-name";
 export const ROOTLY_ANNOTATION_SERVICE_SLUG: "rootly.com/service-slug";
 export const ROOTLY_ANNOTATION_TEAM_AUTO_IMPORT: "rootly.com/team-auto-import";
 export const ROOTLY_ANNOTATION_TEAM_ID: "rootly.com/team-id";
+export const ROOTLY_ANNOTATION_TEAM_NAME: "rootly.com/team-name";
 export const ROOTLY_ANNOTATION_TEAM_SLUG: "rootly.com/team-slug";
 export class RootlyApi {
     static getCreateIncidentURL(): string;
@@ -21,6 +24,7 @@ export class RootlyApi {
     apiProxyUrl: any;
     apiProxyPath: any;
     apiToken: any;
+    removeEmptyAttributes(obj: any): any;
     fetch(input: any, init: any): Promise<any>;
     call(input: any, init: any): Promise<void>;
     addAuthHeaders(init: any): Promise<any>;

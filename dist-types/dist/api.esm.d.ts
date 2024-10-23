@@ -11,6 +11,7 @@ export class RootlyApi {
     apiProxyUrl: any;
     apiProxyPath: any;
     apiToken: any;
+    removeEmptyAttributes(obj: any): any;
     fetch(input: any, init: any): Promise<any>;
     call(input: any, init: any): Promise<void>;
     addAuthHeaders(init: any): Promise<any>;
