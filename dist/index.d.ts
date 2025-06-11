@@ -1,7 +1,7 @@
 import { Entity } from '@backstage/catalog-model';
 import * as _backstage_core_plugin_api from '@backstage/core-plugin-api';
 import { DiscoveryApi, IdentityApi } from '@backstage/core-plugin-api';
-import { RootlyEntity as RootlyEntity$1, RootlyService as RootlyService$1, RootlyFunctionality as RootlyFunctionality$1, RootlyTeam as RootlyTeam$1, RootlyIncident as RootlyIncident$1 } from '@rootly/backstage-plugin-common';
+import { RootlyService as RootlyService$1, RootlyFunctionality as RootlyFunctionality$1, RootlyTeam as RootlyTeam$1, RootlyIncident as RootlyIncident$1, RootlyEntity as RootlyEntity$1 } from '@rootly/backstage-plugin-common';
 
 /** @public */
 interface RootlyService {
