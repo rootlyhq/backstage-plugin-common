@@ -1,6 +1,4 @@
 import { Entity } from '@backstage/catalog-model';
-import * as _backstage_core_plugin_api from '@backstage/core-plugin-api';
-import { DiscoveryApi, IdentityApi } from '@backstage/core-plugin-api';
 import { RootlyService as RootlyService$1, RootlyFunctionality as RootlyFunctionality$1, RootlyTeam as RootlyTeam$1, RootlyIncident as RootlyIncident$1, RootlyEntity as RootlyEntity$1 } from '@rootly/backstage-plugin-common';
 
 /** @public */
@@ -17,6 +15,7 @@ interface RootlyService {
         slack_channels: object[];
         slack_aliases: object[];
         backstage_id: string | undefined;
+        pagerduty_id: string | undefined;
         incidents_count: BigInteger;
         created_at: string;
         updated_at: string;
@@ -42,6 +41,23 @@ interface RootlyFunctionality {
         slack_channels: object[];
         slack_aliases: object[];
         backstage_id: string | undefined;
+        pagerduty_id: string | undefined;
+        incidents_count: BigInteger;
+        created_at: string;
+        updated_at: string;
+    };
+}
+/** @public */
+interface RootlyTeam {
+    id: string;
+    type: string;
+    attributes: {
+        name: string;
+        slug: string;
+        description: string | undefined;
+        color: string;
+        backstage_id: string | undefined;
+        pagerduty_service_id: string | undefined;
         created_at: string;
         updated_at: string;
     };
@@ -63,20 +79,6 @@ interface RootlyUser {
         name: string;
         email: string;
         full_name: string;
-    };
-}
-/** @public */
-interface RootlyTeam {
-    id: string;
-    type: string;
-    attributes: {
-        name: string;
-        slug: string;
-        description: string | undefined;
-        color: string;
-        backstage_id: string | undefined;
-        created_at: string;
-        updated_at: string;
     };
 }
 /** @public */
@@ -160,17 +162,24 @@ interface RootlyIncident {
 }
 /** @public */
 interface RootlyEntity extends Entity {
+    rootlyKind: string | undefined;
     linkedService: RootlyService | undefined;
     linkedFunctionality: RootlyFunctionality | undefined;
     linkedTeam: RootlyTeam | undefined;
 }
 
 /** @public */
+declare const ROOTLY_ANNOTATION_ORG_ID = "rootly.com/organization-id";
+/** @public */
 declare const ROOTLY_ANNOTATION_SERVICE_ID = "rootly.com/service-id";
+/** @public */
+declare const ROOTLY_ANNOTATION_SERVICE_NAME = "rootly.com/service-name";
 /** @public */
 declare const ROOTLY_ANNOTATION_SERVICE_SLUG = "rootly.com/service-slug";
 /** @public */
 declare const ROOTLY_ANNOTATION_SERVICE_AUTO_IMPORT = "rootly.com/service-auto-import";
+/** @public */
+declare const ROOTLY_ANNOTATION_FUNCTIONALITY_NAME = "rootly.com/functionality-name";
 /** @public */
 declare const ROOTLY_ANNOTATION_FUNCTIONALITY_ID = "rootly.com/functionality-id";
 /** @public */
@@ -180,12 +189,13 @@ declare const ROOTLY_ANNOTATION_FUNCTIONALITY_AUTO_IMPORT = "rootly.com/function
 /** @public */
 declare const ROOTLY_ANNOTATION_TEAM_ID = "rootly.com/team-id";
 /** @public */
+declare const ROOTLY_ANNOTATION_TEAM_NAME = "rootly.com/team-name";
+/** @public */
 declare const ROOTLY_ANNOTATION_TEAM_SLUG = "rootly.com/team-slug";
 /** @public */
 declare const ROOTLY_ANNOTATION_TEAM_AUTO_IMPORT = "rootly.com/team-auto-import";
 
-declare const RootlyApiRef: _backstage_core_plugin_api.ApiRef<RootlyApi>;
-declare type RootlyServicesFetchOpts = {
+type RootlyServicesFetchOpts = {
     page?: {
         number?: number;
         size?: number;
@@ -193,7 +203,7 @@ declare type RootlyServicesFetchOpts = {
     filter?: object;
     include?: string;
 };
-declare type RootlyFunctionalitiesFetchOpts = {
+type RootlyFunctionalitiesFetchOpts = {
     page?: {
         number?: number;
         size?: number;
@@ -201,7 +211,7 @@ declare type RootlyFunctionalitiesFetchOpts = {
     filter?: object;
     include?: string;
 };
-declare type RootlyTeamsFetchOpts = {
+type RootlyTeamsFetchOpts = {
     page?: {
         number?: number;
         size?: number;
@@ -209,7 +219,7 @@ declare type RootlyTeamsFetchOpts = {
     filter?: object;
     include?: string;
 };
-declare type RootlyIncidentsFetchOpts = {
+type RootlyIncidentsFetchOpts = {
     page?: {
         number?: number;
         size?: number;
@@ -225,14 +235,14 @@ interface Rootly {
     getTeam(id_or_slug: String): Promise<RootlyTeamResponse>;
     getTeams(opts?: RootlyTeamsFetchOpts): Promise<RootlyTeamsResponse>;
     getIncidents(opts?: RootlyIncidentsFetchOpts): Promise<RootlyIncidentsResponse>;
-    importServiceEntity(entity: RootlyEntity$1): Promise<void>;
-    updateServiceEntity(entity: RootlyEntity$1, service: RootlyService$1, old_service?: RootlyService$1): Promise<void>;
+    importServiceEntity(entity: RootlyEntity$1): Promise<RootlyServiceResponse>;
+    updateServiceEntity(entity: RootlyEntity$1, service: RootlyService$1, old_service?: RootlyService$1): Promise<RootlyServiceResponse>;
     deleteServiceEntity(service: RootlyService$1): Promise<void>;
-    importFunctionalityEntity(entity: RootlyEntity$1): Promise<void>;
-    updateFunctionalityEntity(entity: RootlyEntity$1, functionality: RootlyFunctionality$1, old_functionality?: RootlyFunctionality$1): Promise<void>;
+    importFunctionalityEntity(entity: RootlyEntity$1): Promise<RootlyFunctionalityResponse>;
+    updateFunctionalityEntity(entity: RootlyEntity$1, functionality: RootlyFunctionality$1, old_functionality?: RootlyFunctionality$1): Promise<RootlyFunctionalityResponse>;
     deleteFunctionalityEntity(functionality: RootlyFunctionality$1): Promise<void>;
-    importTeamEntity(entity: RootlyEntity$1): Promise<void>;
-    updateTeamEntity(entity: RootlyEntity$1, functionality: RootlyTeam$1, old_functionality?: RootlyTeam$1): Promise<void>;
+    importTeamEntity(entity: RootlyEntity$1): Promise<RootlyTeamResponse>;
+    updateTeamEntity(entity: RootlyEntity$1, functionality: RootlyTeam$1, old_functionality?: RootlyTeam$1): Promise<RootlyTeamResponse>;
     deleteTeamEntity(team: RootlyTeam$1): Promise<void>;
     getCreateIncidentURL(): string;
     getListIncidents(): string;
@@ -303,30 +313,37 @@ interface RootlyIncidentsResponse {
         self: string;
     };
 }
-declare type Options = {
-    discoveryApi: DiscoveryApi;
-    identityApi: IdentityApi;
+type Options = {
     /**
-     * Domain used by users to access Rootly web UI.
-     * Example: https://rootly.com
+     * apiProxyUrl used to access Rootly API through proxy
+     * Example: https://localhost:7021
      */
-    domain: string;
+    apiProxyUrl: Promise<string>;
     /**
-     * Path to use for requests via the proxy, defaults to /rootly/api
+     * apiProxyPath used to access Rootly API through proxy
+     * Example: /rootly/api
      */
-    proxyPath?: string;
+    apiProxyPath: string | undefined;
+    /**
+     * apiToken used to access Backstage backend
+     * Example: Bearer 12345678910
+     */
+    apiToken: Promise<{
+        token?: string | undefined;
+    }>;
 };
 /**
  * API to talk to Rootly.
  */
 declare class RootlyApi {
-    private readonly discoveryApi;
-    private readonly identityApi;
-    private readonly proxyPath;
-    private readonly domain;
+    private readonly apiProxyUrl;
+    private readonly apiProxyPath;
+    private readonly apiToken;
     constructor(opts: Options);
+    private removeEmptyAttributes;
     private fetch;
     private call;
+    private addAuthHeaders;
     getService(id_or_slug: String): Promise<RootlyServiceResponse>;
     getServices(opts?: RootlyServicesFetchOpts): Promise<RootlyServicesResponse>;
     getFunctionality(id_or_slug: String): Promise<RootlyFunctionalityResponse>;
@@ -349,25 +366,24 @@ declare class RootlyApi {
     }): Promise<{
         data: object;
     }>;
-    importServiceEntity(entity: RootlyEntity$1): Promise<void>;
-    updateServiceEntity(entity: RootlyEntity$1, service: RootlyService$1, old_service?: RootlyService$1): Promise<void>;
+    importServiceEntity(entity: RootlyEntity$1): Promise<RootlyServiceResponse>;
+    updateServiceEntity(entity: RootlyEntity$1, service: RootlyService$1, old_service?: RootlyService$1): Promise<RootlyServiceResponse>;
     deleteServiceEntity(service: RootlyService$1): Promise<void>;
-    importFunctionalityEntity(entity: RootlyEntity$1): Promise<void>;
-    updateFunctionalityEntity(entity: RootlyEntity$1, functionality: RootlyFunctionality$1, old_functionality?: RootlyFunctionality$1): Promise<void>;
+    importFunctionalityEntity(entity: RootlyEntity$1): Promise<RootlyFunctionalityResponse>;
+    updateFunctionalityEntity(entity: RootlyEntity$1, functionality: RootlyFunctionality$1, old_functionality?: RootlyFunctionality$1): Promise<RootlyFunctionalityResponse>;
     deleteFunctionalityEntity(functionality: RootlyFunctionality$1): Promise<void>;
-    importTeamEntity(entity: RootlyEntity$1): Promise<void>;
-    updateTeamEntity(entity: RootlyEntity$1, team: RootlyTeam$1, old_team?: RootlyTeam$1): Promise<void>;
+    importTeamEntity(entity: RootlyEntity$1): Promise<RootlyTeamResponse>;
+    updateTeamEntity(entity: RootlyEntity$1, team: RootlyTeam$1, old_team?: RootlyTeam$1): Promise<RootlyTeamResponse>;
     deleteTeamEntity(team: RootlyTeam$1): Promise<void>;
-    getCreateIncidentURL(): string;
-    getListIncidents(): string;
-    getListIncidentsForServiceURL(service: RootlyService$1): string;
-    getListIncidentsForFunctionalityURL(functionality: RootlyFunctionality$1): string;
-    getListIncidentsForTeamURL(team: RootlyTeam$1): string;
-    getServiceDetailsURL(service: RootlyService$1): string;
-    getFunctionalityDetailsURL(functionality: RootlyFunctionality$1): string;
-    getTeamDetailsURL(team: RootlyTeam$1): string;
-    private apiUrl;
-    private addAuthHeaders;
+    static getCreateIncidentURL(): string;
+    static getListIncidents(): string;
+    static getListIncidentsForServiceURL(service: RootlyService$1): string;
+    static getListIncidentsForFunctionalityURL(functionality: RootlyFunctionality$1): string;
+    static getListIncidentsForTeamURL(team: RootlyTeam$1): string;
+    static getServiceDetailsURL(service: RootlyService$1): string;
+    static getFunctionalityDetailsURL(functionality: RootlyFunctionality$1): string;
+    static getTeamDetailsURL(team: RootlyTeam$1): string;
 }
 
-export { ROOTLY_ANNOTATION_FUNCTIONALITY_AUTO_IMPORT, ROOTLY_ANNOTATION_FUNCTIONALITY_ID, ROOTLY_ANNOTATION_FUNCTIONALITY_SLUG, ROOTLY_ANNOTATION_SERVICE_AUTO_IMPORT, ROOTLY_ANNOTATION_SERVICE_ID, ROOTLY_ANNOTATION_SERVICE_SLUG, ROOTLY_ANNOTATION_TEAM_AUTO_IMPORT, ROOTLY_ANNOTATION_TEAM_ID, ROOTLY_ANNOTATION_TEAM_SLUG, type Rootly, RootlyApi, RootlyApiRef, type RootlyEntity, type RootlyEnvironment, type RootlyFunctionalitiesFetchOpts, type RootlyFunctionalitiesResponse, type RootlyFunctionality, type RootlyFunctionalityResponse, type RootlyIncident, type RootlyIncidentType, type RootlyIncidentsFetchOpts, type RootlyIncidentsResponse, type RootlyRelationship, type RootlyResponderRef, type RootlyService, type RootlyServiceResponse, type RootlyServicesFetchOpts, type RootlyServicesResponse, type RootlySeverity, type RootlyTeam, type RootlyTeamResponse, type RootlyTeamsFetchOpts, type RootlyTeamsResponse, type RootlyUser };
+export { ROOTLY_ANNOTATION_FUNCTIONALITY_AUTO_IMPORT, ROOTLY_ANNOTATION_FUNCTIONALITY_ID, ROOTLY_ANNOTATION_FUNCTIONALITY_NAME, ROOTLY_ANNOTATION_FUNCTIONALITY_SLUG, ROOTLY_ANNOTATION_ORG_ID, ROOTLY_ANNOTATION_SERVICE_AUTO_IMPORT, ROOTLY_ANNOTATION_SERVICE_ID, ROOTLY_ANNOTATION_SERVICE_NAME, ROOTLY_ANNOTATION_SERVICE_SLUG, ROOTLY_ANNOTATION_TEAM_AUTO_IMPORT, ROOTLY_ANNOTATION_TEAM_ID, ROOTLY_ANNOTATION_TEAM_NAME, ROOTLY_ANNOTATION_TEAM_SLUG, RootlyApi };
+export type { Rootly, RootlyEntity, RootlyEnvironment, RootlyFunctionalitiesFetchOpts, RootlyFunctionalitiesResponse, RootlyFunctionality, RootlyFunctionalityResponse, RootlyIncident, RootlyIncidentType, RootlyIncidentsFetchOpts, RootlyIncidentsResponse, RootlyRelationship, RootlyResponderRef, RootlyService, RootlyServiceResponse, RootlyServicesFetchOpts, RootlyServicesResponse, RootlySeverity, RootlyTeam, RootlyTeamResponse, RootlyTeamsFetchOpts, RootlyTeamsResponse, RootlyUser };
