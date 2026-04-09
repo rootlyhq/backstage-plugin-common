@@ -1,4 +1,4 @@
-import { RootlyEntity, RootlyIncident, RootlyService, RootlyFunctionality, RootlyTeam } from '@rootly/backstage-plugin-common';
+import { RootlyEntity, RootlyIncident, RootlyService, RootlyFunctionality, RootlyTeam } from './types';
 export type RootlyServicesFetchOpts = {
     page?: {
         number?: number;
@@ -170,6 +170,7 @@ export declare class RootlyApi {
     }): Promise<{
         data: object;
     }>;
+    private resolveOwnerGroupIds;
     importServiceEntity(entity: RootlyEntity): Promise<RootlyServiceResponse>;
     updateServiceEntity(entity: RootlyEntity, service: RootlyService, old_service?: RootlyService): Promise<RootlyServiceResponse>;
     deleteServiceEntity(service: RootlyService): Promise<void>;

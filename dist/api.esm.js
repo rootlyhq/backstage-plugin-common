@@ -1,6 +1,6 @@
 import { stringifyEntityRef } from '@backstage/catalog-model';
 import qs from 'qs';
-import { ROOTLY_ANNOTATION_SERVICE_NAME, ROOTLY_ANNOTATION_FUNCTIONALITY_NAME, ROOTLY_ANNOTATION_TEAM_NAME } from '@rootly/backstage-plugin-common';
+import { ROOTLY_ANNOTATION_SERVICE_NAME, ROOTLY_ANNOTATION_FUNCTIONALITY_NAME, ROOTLY_ANNOTATION_TEAM_NAME } from './constants.esm.js';
 
 const DEFAULT_PROXY_PATH = "/rootly/api";
 class RootlyApi {
@@ -148,12 +148,26 @@ class RootlyApi {
     );
     return response;
   }
+  // Resolves the Rootly team ID from the entity's spec.owner by name.
+  async resolveOwnerGroupIds(entity) {
+    const owner = entity.spec?.owner;
+    if (!owner) return [];
+    const name = owner.includes("/") ? owner.split("/").pop() : owner;
+    if (!name) return [];
+    try {
+      const teamsResponse = await this.getTeams({ filter: { name } });
+      if (teamsResponse.data?.length > 0) return [teamsResponse.data[0].id];
+    } catch (_e) {
+    }
+    return [];
+  }
   async importServiceEntity(entity) {
     const entityTriplet = stringifyEntityRef({
       namespace: entity.metadata.namespace,
       kind: entity.kind,
       name: entity.metadata.name
     });
+    const ownerGroupIds = await this.resolveOwnerGroupIds(entity);
     const init = {
       method: "POST",
       headers: { "Content-Type": "application/vnd.api+json" },
@@ -164,7 +178,8 @@ class RootlyApi {
             name: entity.metadata.annotations?.[ROOTLY_ANNOTATION_SERVICE_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
-            pagerduty_id: entity.metadata.annotations?.["pagerduty.com/service-id"]
+            pagerduty_id: entity.metadata.annotations?.["pagerduty.com/service-id"],
+            owner_group_ids: ownerGroupIds.length > 0 ? ownerGroupIds : void 0
           }
         }
       })
@@ -193,6 +208,7 @@ class RootlyApi {
       };
       await this.call(`/v1/services/${old_service.id}`, init1);
     }
+    const ownerGroupIds = await this.resolveOwnerGroupIds(entity);
     const init2 = {
       method: "PUT",
       headers: { "Content-Type": "application/vnd.api+json" },
@@ -203,7 +219,8 @@ class RootlyApi {
             name: entity.metadata.annotations?.[ROOTLY_ANNOTATION_SERVICE_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
-            pagerduty_id: entity.metadata.annotations?.["pagerduty.com/service-id"]
+            pagerduty_id: entity.metadata.annotations?.["pagerduty.com/service-id"],
+            owner_group_ids: ownerGroupIds.length > 0 ? ownerGroupIds : void 0
           }
         }
       })

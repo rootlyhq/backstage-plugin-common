@@ -25,6 +25,7 @@ export class RootlyApi {
     getServiceIncidentsChart(service: any, opts: any): Promise<any>;
     getFunctionalityIncidentsChart(functionality: any, opts: any): Promise<any>;
     getTeamIncidentsChart(team: any, opts: any): Promise<any>;
+    resolveOwnerGroupIds(entity: any): Promise<any[]>;
     importServiceEntity(entity: any): Promise<any>;
     updateServiceEntity(entity: any, service: any, old_service: any): Promise<any>;
     deleteServiceEntity(service: any): Promise<void>;
