@@ -403,7 +403,7 @@ export class RootlyApi {
       }),
     };
 
-    const response = this.fetch<RootlyServiceResponse>(`/v1/services`, init);
+    const response = await this.fetch<RootlyServiceResponse>(`/v1/services`, init);
     return response;
   }
 
@@ -454,7 +454,7 @@ export class RootlyApi {
       }),
     };
 
-    const response = this.fetch<RootlyServiceResponse>(
+    const response = await this.fetch<RootlyServiceResponse>(
       `/v1/services/${service.id}`,
       init2,
     );
@@ -506,7 +506,7 @@ export class RootlyApi {
       }),
     };
 
-    const response = this.fetch<RootlyFunctionalityResponse>(
+    const response = await this.fetch<RootlyFunctionalityResponse>(
       `/v1/functionalities`,
       init,
     );
@@ -561,7 +561,7 @@ export class RootlyApi {
       }),
     };
 
-    const response = this.fetch<RootlyFunctionalityResponse>(
+    const response = await this.fetch<RootlyFunctionalityResponse>(
       `/v1/functionalities/${functionality.id}`,
       init2,
     );
@@ -612,7 +612,7 @@ export class RootlyApi {
       }),
     };
 
-    const response = this.fetch<RootlyTeamResponse>(`/v1/teams`, init);
+    const response = await this.fetch<RootlyTeamResponse>(`/v1/teams`, init);
     return response;
   }
 
@@ -663,7 +663,7 @@ export class RootlyApi {
       }),
     };
 
-    const response = this.fetch<RootlyTeamResponse>(
+    const response = await this.fetch<RootlyTeamResponse>(
       `/v1/teams/${team.id}`,
       init2,
     );
