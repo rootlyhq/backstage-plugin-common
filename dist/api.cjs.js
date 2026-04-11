@@ -1,6 +1,12 @@
-import { stringifyEntityRef } from '@backstage/catalog-model';
-import qs from 'qs';
-import { ROOTLY_ANNOTATION_SERVICE_NAME, ROOTLY_ANNOTATION_FUNCTIONALITY_NAME, ROOTLY_ANNOTATION_TEAM_NAME } from '@rootly/backstage-plugin-common';
+'use strict';
+
+var catalogModel = require('@backstage/catalog-model');
+var qs = require('qs');
+var backstagePluginCommon = require('@rootly/backstage-plugin-common');
+
+function _interopDefaultCompat (e) { return e && typeof e === 'object' && 'default' in e ? e : { default: e }; }
+
+var qs__default = /*#__PURE__*/_interopDefaultCompat(qs);
 
 const DEFAULT_PROXY_PATH = "/rootly/api";
 class RootlyApi {
@@ -71,7 +77,7 @@ class RootlyApi {
   }
   async getServices(opts) {
     const init = { headers: { "Content-Type": "application/vnd.api+json" } };
-    const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });
+    const params = qs__default.default.stringify(this.removeEmptyAttributes(opts), { encode: false });
     const response = await this.fetch(
       `/v1/services?${params}`,
       init
@@ -88,7 +94,7 @@ class RootlyApi {
   }
   async getFunctionalities(opts) {
     const init = { headers: { "Content-Type": "application/vnd.api+json" } };
-    const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });
+    const params = qs__default.default.stringify(this.removeEmptyAttributes(opts), { encode: false });
     const response = await this.fetch(
       `/v1/functionalities?${params}`,
       init
@@ -105,7 +111,7 @@ class RootlyApi {
   }
   async getTeams(opts) {
     const init = { headers: { "Content-Type": "application/vnd.api+json" } };
-    const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });
+    const params = qs__default.default.stringify(this.removeEmptyAttributes(opts), { encode: false });
     const response = await this.fetch(
       `/v1/teams?${params}`,
       init
@@ -114,7 +120,7 @@ class RootlyApi {
   }
   async getIncidents(opts) {
     const init = { headers: { "Content-Type": "application/vnd.api+json" } };
-    const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });
+    const params = qs__default.default.stringify(this.removeEmptyAttributes(opts), { encode: false });
     const response = await this.fetch(
       `/v1/incidents?${params}`,
       init
@@ -123,7 +129,7 @@ class RootlyApi {
   }
   async getServiceIncidentsChart(service, opts) {
     const init = { headers: { "Content-Type": "application/vnd.api+json" } };
-    const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });
+    const params = qs__default.default.stringify(this.removeEmptyAttributes(opts), { encode: false });
     const response = await this.fetch(
       `/v1/services/${service.id}/incidents_chart?${params}`,
       init
@@ -132,7 +138,7 @@ class RootlyApi {
   }
   async getFunctionalityIncidentsChart(functionality, opts) {
     const init = { headers: { "Content-Type": "application/vnd.api+json" } };
-    const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });
+    const params = qs__default.default.stringify(this.removeEmptyAttributes(opts), { encode: false });
     const response = await this.fetch(
       `/v1/functionalities/${functionality.id}/incidents_chart?${params}`,
       init
@@ -141,7 +147,7 @@ class RootlyApi {
   }
   async getTeamIncidentsChart(team, opts) {
     const init = { headers: { "Content-Type": "application/vnd.api+json" } };
-    const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });
+    const params = qs__default.default.stringify(this.removeEmptyAttributes(opts), { encode: false });
     const response = await this.fetch(
       `/v1/teams/${team.id}/incidents_chart?${params}`,
       init
@@ -149,7 +155,7 @@ class RootlyApi {
     return response;
   }
   async importServiceEntity(entity) {
-    const entityTriplet = stringifyEntityRef({
+    const entityTriplet = catalogModel.stringifyEntityRef({
       namespace: entity.metadata.namespace,
       kind: entity.kind,
       name: entity.metadata.name
@@ -161,7 +167,7 @@ class RootlyApi {
         data: {
           type: "services",
           attributes: {
-            name: entity.metadata.annotations?.[ROOTLY_ANNOTATION_SERVICE_NAME] || entity.metadata.name,
+            name: entity.metadata.annotations?.[backstagePluginCommon.ROOTLY_ANNOTATION_SERVICE_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
             pagerduty_id: entity.metadata.annotations?.["pagerduty.com/service-id"]
@@ -173,7 +179,7 @@ class RootlyApi {
     return response;
   }
   async updateServiceEntity(entity, service, old_service) {
-    const entityTriplet = stringifyEntityRef({
+    const entityTriplet = catalogModel.stringifyEntityRef({
       namespace: entity.metadata.namespace,
       kind: entity.kind,
       name: entity.metadata.name
@@ -200,7 +206,7 @@ class RootlyApi {
         data: {
           type: "services",
           attributes: {
-            name: entity.metadata.annotations?.[ROOTLY_ANNOTATION_SERVICE_NAME] || entity.metadata.name,
+            name: entity.metadata.annotations?.[backstagePluginCommon.ROOTLY_ANNOTATION_SERVICE_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
             pagerduty_id: entity.metadata.annotations?.["pagerduty.com/service-id"]
@@ -230,7 +236,7 @@ class RootlyApi {
     await this.call(`/v1/services/${service.id}`, init);
   }
   async importFunctionalityEntity(entity) {
-    const entityTriplet = stringifyEntityRef({
+    const entityTriplet = catalogModel.stringifyEntityRef({
       namespace: entity.metadata.namespace,
       kind: entity.kind,
       name: entity.metadata.name
@@ -242,7 +248,7 @@ class RootlyApi {
         data: {
           type: "functionalities",
           attributes: {
-            name: entity.metadata.annotations?.[ROOTLY_ANNOTATION_FUNCTIONALITY_NAME] || entity.metadata.name,
+            name: entity.metadata.annotations?.[backstagePluginCommon.ROOTLY_ANNOTATION_FUNCTIONALITY_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
             pagerduty_id: entity.metadata.annotations?.["pagerduty.com/service-id"]
@@ -257,7 +263,7 @@ class RootlyApi {
     return response;
   }
   async updateFunctionalityEntity(entity, functionality, old_functionality) {
-    const entityTriplet = stringifyEntityRef({
+    const entityTriplet = catalogModel.stringifyEntityRef({
       namespace: entity.metadata.namespace,
       kind: entity.kind,
       name: entity.metadata.name
@@ -284,7 +290,7 @@ class RootlyApi {
         data: {
           type: "functionalities",
           attributes: {
-            name: entity.metadata.annotations?.[ROOTLY_ANNOTATION_FUNCTIONALITY_NAME] || entity.metadata.name,
+            name: entity.metadata.annotations?.[backstagePluginCommon.ROOTLY_ANNOTATION_FUNCTIONALITY_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
             pagerduty_id: entity.metadata.annotations?.["pagerduty.com/service-id"]
@@ -314,7 +320,7 @@ class RootlyApi {
     await this.call(`/v1/functionalities/${functionality.id}`, init);
   }
   async importTeamEntity(entity) {
-    const entityTriplet = stringifyEntityRef({
+    const entityTriplet = catalogModel.stringifyEntityRef({
       namespace: entity.metadata.namespace,
       kind: entity.kind,
       name: entity.metadata.name
@@ -326,7 +332,7 @@ class RootlyApi {
         data: {
           type: "teams",
           attributes: {
-            name: entity.metadata.annotations?.[ROOTLY_ANNOTATION_TEAM_NAME] || entity.metadata.name,
+            name: entity.metadata.annotations?.[backstagePluginCommon.ROOTLY_ANNOTATION_TEAM_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
             pagerduty_id: entity.metadata.annotations?.["pagerduty.com/service-id"]
@@ -338,7 +344,7 @@ class RootlyApi {
     return response;
   }
   async updateTeamEntity(entity, team, old_team) {
-    const entityTriplet = stringifyEntityRef({
+    const entityTriplet = catalogModel.stringifyEntityRef({
       namespace: entity.metadata.namespace,
       kind: entity.kind,
       name: entity.metadata.name
@@ -365,7 +371,7 @@ class RootlyApi {
         data: {
           type: "teams",
           attributes: {
-            name: entity.metadata.annotations?.[ROOTLY_ANNOTATION_TEAM_NAME] || entity.metadata.name,
+            name: entity.metadata.annotations?.[backstagePluginCommon.ROOTLY_ANNOTATION_TEAM_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
             pagerduty_id: entity.metadata.annotations?.["pagerduty.com/service-id"]
@@ -401,21 +407,21 @@ class RootlyApi {
     return `https://rootly.com/account/incidents`;
   }
   static getListIncidentsForServiceURL(service) {
-    const params = qs.stringify(
+    const params = qs__default.default.stringify(
       { filter: { filters: ["services"], services: [service.id] } },
       { arrayFormat: "brackets" }
     );
     return `https://rootly.com/account/incidents?${params}`;
   }
   static getListIncidentsForFunctionalityURL(functionality) {
-    const params = qs.stringify(
+    const params = qs__default.default.stringify(
       { filter: { filters: ["functionalities"], groups: [functionality.id] } },
       { arrayFormat: "brackets" }
     );
     return `https://rootly.com/account/incidents?${params}`;
   }
   static getListIncidentsForTeamURL(team) {
-    const params = qs.stringify(
+    const params = qs__default.default.stringify(
       { filter: { filters: ["groups"], groups: [team.id] } },
       { arrayFormat: "brackets" }
     );
@@ -432,5 +438,5 @@ class RootlyApi {
   }
 }
 
-export { RootlyApi };
-//# sourceMappingURL=api.esm.js.map
+exports.RootlyApi = RootlyApi;
+//# sourceMappingURL=api.cjs.js.map
