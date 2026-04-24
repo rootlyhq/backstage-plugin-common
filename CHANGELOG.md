@@ -1,5 +1,10 @@
 # @rootly/backstage-plugin-common
 
+## 1.1.1 - 2026-04-10
+
+### Fixed
+- Add missing `await` on `this.fetch()` calls in six API methods: `importServiceEntity`, `updateServiceEntity`, `importFunctionalityEntity`, `updateFunctionalityEntity`, `importTeamEntity`, `updateTeamEntity`
+
 ## 1.1.0 - 2025-10-07
 
 ### Changed
