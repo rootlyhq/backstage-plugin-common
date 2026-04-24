@@ -1,6 +1,6 @@
 # @rootly/backstage-plugin-common
 
-## 1.1.2 - 2026-04-23
+## 1.2.0 - 2026-04-23
 
 ### Changed
 - Sync service `owner_group_ids` from Backstage `spec.owner` when importing or updating services
