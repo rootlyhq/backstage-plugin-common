@@ -2,7 +2,7 @@
 
 var catalogModel = require('@backstage/catalog-model');
 var qs = require('qs');
-var backstagePluginCommon = require('@rootly/backstage-plugin-common');
+var constants = require('./constants.cjs.js');
 
 function _interopDefaultCompat (e) { return e && typeof e === 'object' && 'default' in e ? e : { default: e }; }
 
@@ -154,12 +154,26 @@ class RootlyApi {
     );
     return response;
   }
+  // Resolves the Rootly team ID from the entity's spec.owner by name.
+  async resolveOwnerGroupIds(entity) {
+    const owner = entity.spec?.owner;
+    if (!owner) return [];
+    const name = owner.includes("/") ? owner.split("/").pop() : owner;
+    if (!name) return [];
+    try {
+      const teamsResponse = await this.getTeams({ filter: { name } });
+      if (teamsResponse.data?.length > 0) return [teamsResponse.data[0].id];
+    } catch (_e) {
+    }
+    return [];
+  }
   async importServiceEntity(entity) {
     const entityTriplet = catalogModel.stringifyEntityRef({
       namespace: entity.metadata.namespace,
       kind: entity.kind,
       name: entity.metadata.name
     });
+    const ownerGroupIds = await this.resolveOwnerGroupIds(entity);
     const init = {
       method: "POST",
       headers: { "Content-Type": "application/vnd.api+json" },
@@ -167,10 +181,11 @@ class RootlyApi {
         data: {
           type: "services",
           attributes: {
-            name: entity.metadata.annotations?.[backstagePluginCommon.ROOTLY_ANNOTATION_SERVICE_NAME] || entity.metadata.name,
+            name: entity.metadata.annotations?.[constants.ROOTLY_ANNOTATION_SERVICE_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
-            pagerduty_id: entity.metadata.annotations?.["pagerduty.com/service-id"]
+            pagerduty_id: entity.metadata.annotations?.["pagerduty.com/service-id"],
+            owner_group_ids: ownerGroupIds.length > 0 ? ownerGroupIds : void 0
           }
         }
       })
@@ -199,6 +214,7 @@ class RootlyApi {
       };
       await this.call(`/v1/services/${old_service.id}`, init1);
     }
+    const ownerGroupIds = await this.resolveOwnerGroupIds(entity);
     const init2 = {
       method: "PUT",
       headers: { "Content-Type": "application/vnd.api+json" },
@@ -206,10 +222,11 @@ class RootlyApi {
         data: {
           type: "services",
           attributes: {
-            name: entity.metadata.annotations?.[backstagePluginCommon.ROOTLY_ANNOTATION_SERVICE_NAME] || entity.metadata.name,
+            name: entity.metadata.annotations?.[constants.ROOTLY_ANNOTATION_SERVICE_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
-            pagerduty_id: entity.metadata.annotations?.["pagerduty.com/service-id"]
+            pagerduty_id: entity.metadata.annotations?.["pagerduty.com/service-id"],
+            owner_group_ids: ownerGroupIds.length > 0 ? ownerGroupIds : void 0
           }
         }
       })
@@ -248,7 +265,7 @@ class RootlyApi {
         data: {
           type: "functionalities",
           attributes: {
-            name: entity.metadata.annotations?.[backstagePluginCommon.ROOTLY_ANNOTATION_FUNCTIONALITY_NAME] || entity.metadata.name,
+            name: entity.metadata.annotations?.[constants.ROOTLY_ANNOTATION_FUNCTIONALITY_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
             pagerduty_id: entity.metadata.annotations?.["pagerduty.com/service-id"]
@@ -290,7 +307,7 @@ class RootlyApi {
         data: {
           type: "functionalities",
           attributes: {
-            name: entity.metadata.annotations?.[backstagePluginCommon.ROOTLY_ANNOTATION_FUNCTIONALITY_NAME] || entity.metadata.name,
+            name: entity.metadata.annotations?.[constants.ROOTLY_ANNOTATION_FUNCTIONALITY_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
             pagerduty_id: entity.metadata.annotations?.["pagerduty.com/service-id"]
@@ -332,7 +349,7 @@ class RootlyApi {
         data: {
           type: "teams",
           attributes: {
-            name: entity.metadata.annotations?.[backstagePluginCommon.ROOTLY_ANNOTATION_TEAM_NAME] || entity.metadata.name,
+            name: entity.metadata.annotations?.[constants.ROOTLY_ANNOTATION_TEAM_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
             pagerduty_id: entity.metadata.annotations?.["pagerduty.com/service-id"]
@@ -371,7 +388,7 @@ class RootlyApi {
         data: {
           type: "teams",
           attributes: {
-            name: entity.metadata.annotations?.[backstagePluginCommon.ROOTLY_ANNOTATION_TEAM_NAME] || entity.metadata.name,
+            name: entity.metadata.annotations?.[constants.ROOTLY_ANNOTATION_TEAM_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
             pagerduty_id: entity.metadata.annotations?.["pagerduty.com/service-id"]

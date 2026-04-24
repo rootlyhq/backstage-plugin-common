@@ -6,10 +6,12 @@ import {
   RootlyService,
   RootlyFunctionality,
   RootlyTeam,
+} from './types';
+import {
   ROOTLY_ANNOTATION_FUNCTIONALITY_NAME,
   ROOTLY_ANNOTATION_TEAM_NAME,
   ROOTLY_ANNOTATION_SERVICE_NAME,
-} from '@rootly/backstage-plugin-common';
+} from './constants';
 
 export type RootlyServicesFetchOpts = {
   page?: {
@@ -376,6 +378,25 @@ export class RootlyApi {
     return response;
   }
 
+  // Resolves the Rootly team ID from the entity's spec.owner by name.
+  private async resolveOwnerGroupIds(entity: RootlyEntity): Promise<string[]> {
+    const owner = entity.spec?.owner as string | undefined;
+    if (!owner) return [];
+
+    // Extract the name part from refs like "group:default/platform-team" or "platform-team"
+    const name = owner.includes('/') ? owner.split('/').pop() : owner;
+    if (!name) return [];
+
+    try {
+      const teamsResponse = await this.getTeams({ filter: { name } });
+      if (teamsResponse.data?.length > 0) return [teamsResponse.data[0].id];
+    } catch (_e) {
+      // team lookup failed, proceed without owner
+    }
+
+    return [];
+  }
+
   async importServiceEntity(
     entity: RootlyEntity,
   ): Promise<RootlyServiceResponse> {
@@ -384,6 +405,7 @@ export class RootlyApi {
       kind: entity.kind,
       name: entity.metadata.name,
     });
+    const ownerGroupIds = await this.resolveOwnerGroupIds(entity);
     const init = {
       method: 'POST',
       headers: { 'Content-Type': 'application/vnd.api+json' },
@@ -398,6 +420,7 @@ export class RootlyApi {
             backstage_id: entityTriplet,
             pagerduty_id:
               entity.metadata.annotations?.['pagerduty.com/service-id'],
+            owner_group_ids: ownerGroupIds.length > 0 ? ownerGroupIds : undefined,
           },
         },
       }),
@@ -435,6 +458,7 @@ export class RootlyApi {
       await this.call(`/v1/services/${old_service.id}`, init1);
     }
 
+    const ownerGroupIds = await this.resolveOwnerGroupIds(entity);
     const init2 = {
       method: 'PUT',
       headers: { 'Content-Type': 'application/vnd.api+json' },
@@ -449,6 +473,7 @@ export class RootlyApi {
             backstage_id: entityTriplet,
             pagerduty_id:
               entity.metadata.annotations?.['pagerduty.com/service-id'],
+            owner_group_ids: ownerGroupIds.length > 0 ? ownerGroupIds : undefined,
           },
         },
       }),
