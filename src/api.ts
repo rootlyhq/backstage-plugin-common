@@ -129,7 +129,6 @@ export interface Rootly {
   ): Promise<RootlyCatalogEntityResponse>;
   deleteCatalogEntityEntity(catalogEntity: RootlyCatalogEntity): Promise<void>;
 
-  getListIncidentsForCatalogEntityURL(catalogEntity: RootlyCatalogEntity): string;
   getCatalogEntityDetailsURL(catalogEntity: RootlyCatalogEntity): string;
 
   getCreateIncidentURL(): string;
