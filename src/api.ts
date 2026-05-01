@@ -6,11 +6,14 @@ import {
   RootlyService,
   RootlyFunctionality,
   RootlyTeam,
+  RootlyCatalog,
+  RootlyCatalogEntity,
 } from './types';
 import {
   ROOTLY_ANNOTATION_FUNCTIONALITY_NAME,
   ROOTLY_ANNOTATION_TEAM_NAME,
   ROOTLY_ANNOTATION_SERVICE_NAME,
+  ROOTLY_ANNOTATION_CATALOG_ENTITY_NAME,
 } from './constants';
 
 export type RootlyServicesFetchOpts = {
@@ -41,6 +44,25 @@ export type RootlyTeamsFetchOpts = {
 };
 
 export type RootlyIncidentsFetchOpts = {
+  page?: {
+    number?: number;
+    size?: number;
+  };
+  filter?: object;
+  include?: string;
+};
+
+
+export type RootlyCatalogsFetchOpts = {
+  page?: {
+    number?: number;
+    size?: number;
+  };
+  filter?: object;
+  include?: string;
+};
+
+export type RootlyCatalogEntitiesFetchOpts = {
   page?: {
     number?: number;
     size?: number;
@@ -87,6 +109,28 @@ export interface Rootly {
     old_functionality?: RootlyTeam,
   ): Promise<RootlyTeamResponse>;
   deleteTeamEntity(team: RootlyTeam): Promise<void>;
+
+
+  getCatalogs(opts?: RootlyCatalogsFetchOpts): Promise<RootlyCatalogsResponse>;
+  getCatalogEntity(id_or_slug: String, opts?: { include?: string }): Promise<RootlyCatalogEntityResponse>;
+  getCatalogEntities(
+    catalog_id: String,
+    opts?: RootlyCatalogEntitiesFetchOpts,
+  ): Promise<RootlyCatalogEntitiesResponse>;
+
+  importCatalogEntityEntity(
+    entity: RootlyEntity,
+    catalogId: string,
+  ): Promise<RootlyCatalogEntityResponse>;
+  updateCatalogEntityEntity(
+    entity: RootlyEntity,
+    catalogEntity: RootlyCatalogEntity,
+    old_catalogEntity?: RootlyCatalogEntity,
+  ): Promise<RootlyCatalogEntityResponse>;
+  deleteCatalogEntityEntity(catalogEntity: RootlyCatalogEntity): Promise<void>;
+
+  findOrCreateCatalog(nameOrSlug: string, description?: string): Promise<RootlyCatalogResponse>;
+  getCatalogEntityDetailsURL(catalogEntity: RootlyCatalogEntity, catalogSlug: string): string;
 
   getCreateIncidentURL(): string;
   getListIncidents(): string;
@@ -167,6 +211,31 @@ export interface RootlyIncidentsResponse {
   };
 }
 
+export interface RootlyCatalogResponse {
+  data: RootlyCatalog;
+}
+
+export interface RootlyCatalogsResponse {
+  meta: {
+    total_count: number;
+    total_pages: number;
+  };
+  data: RootlyCatalog[];
+}
+
+export interface RootlyCatalogEntityResponse {
+  data: RootlyCatalogEntity;
+  included?: Array<{ id: string; type: string; attributes: any }>;
+}
+
+export interface RootlyCatalogEntitiesResponse {
+  meta: {
+    total_count: number;
+    total_pages: number;
+  };
+  data: RootlyCatalogEntity[];
+}
+
 const DEFAULT_PROXY_PATH = '/rootly/api';
 
 type Options = {
@@ -187,6 +256,12 @@ type Options = {
    * Example: Bearer 12345678910
    */
   apiToken: Promise<{ token?: string | undefined }>;
+
+  /**
+   * apiHost for Rootly web UI links
+   * Example: https://rootly.com or https://staging.rootly.com
+   */
+  apiHost?: string;
 };
 
 /**
@@ -196,11 +271,13 @@ export class RootlyApi {
   private readonly apiProxyUrl: Promise<string>;
   private readonly apiProxyPath: string;
   private readonly apiToken: Promise<{ token?: string | undefined }>;
+  private readonly apiHost: string;
 
   constructor(opts: Options) {
     this.apiProxyUrl = opts.apiProxyUrl;
     this.apiProxyPath = opts.apiProxyPath ?? DEFAULT_PROXY_PATH;
     this.apiToken = opts.apiToken;
+    this.apiHost = opts.apiHost ?? 'https://rootly.com';
   }
 
   private removeEmptyAttributes<T>(obj: T): T {
@@ -712,51 +789,252 @@ export class RootlyApi {
     await this.call(`/v1/teams/${team.id}`, init);
   }
 
-  static getCreateIncidentURL(): string {
-    return `https://rootly.com/account/incidents/new`;
+
+  async getCatalogs(
+    opts?: RootlyCatalogsFetchOpts,
+  ): Promise<RootlyCatalogsResponse> {
+    const init = { headers: { 'Content-Type': 'application/vnd.api+json' } };
+    const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });
+    const response = await this.fetch<RootlyCatalogsResponse>(
+      `/v1/catalogs?${params}`,
+      init,
+    );
+    return response;
   }
 
-  static getListIncidents(): string {
-    return `https://rootly.com/account/incidents`;
+  async findOrCreateCatalog(
+    nameOrSlug: string,
+    description?: string,
+  ): Promise<RootlyCatalogResponse> {
+    const init = { headers: { 'Content-Type': 'application/vnd.api+json' } };
+
+    const params = qs.stringify({ filter: { slug: nameOrSlug } }, { encode: false });
+    const listResponse = await this.fetch<RootlyCatalogsResponse>(
+      `/v1/catalogs?${params}`,
+      init,
+    );
+
+    if (listResponse.data && listResponse.data.length > 0) {
+      return { data: listResponse.data[0] };
+    }
+
+    try {
+      const createInit = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/vnd.api+json' },
+        body: JSON.stringify({
+          data: {
+            type: 'catalogs',
+            attributes: {
+              name: nameOrSlug,
+            description: description,
+            },
+          },
+        }),
+      };
+
+      const response = await this.fetch<RootlyCatalogResponse>(
+        `/v1/catalogs`,
+        createInit,
+      );
+      return response;
+    } catch (_) {
+      const retryResponse = await this.fetch<RootlyCatalogsResponse>(
+        `/v1/catalogs?${params}`,
+        init,
+      );
+      if (retryResponse.data && retryResponse.data.length > 0) {
+        return { data: retryResponse.data[0] };
+      }
+      throw new Error(`Catalog '${nameOrSlug}' not found and could not be created`);
+    }
   }
 
-  static getListIncidentsForServiceURL(service: RootlyService): string {
+  async getCatalogEntity(
+    id_or_slug: String,
+    opts?: { include?: string },
+  ): Promise<RootlyCatalogEntityResponse> {
+    const init = { headers: { 'Content-Type': 'application/vnd.api+json' } };
+    const params = opts ? qs.stringify(opts, { encode: false }) : '';
+    const response = await this.fetch<RootlyCatalogEntityResponse>(
+      `/v1/catalog_entities/${id_or_slug}${params ? `?${params}` : ''}`,
+      init,
+    );
+    return response;
+  }
+
+  async getCatalogEntities(
+    catalog_id: String,
+    opts?: RootlyCatalogEntitiesFetchOpts,
+  ): Promise<RootlyCatalogEntitiesResponse> {
+    const init = { headers: { 'Content-Type': 'application/vnd.api+json' } };
+    const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });
+    const response = await this.fetch<RootlyCatalogEntitiesResponse>(
+      `/v1/catalogs/${catalog_id}/entities?${params}`,
+      init,
+    );
+    return response;
+  }
+
+  async importCatalogEntityEntity(
+    entity: RootlyEntity,
+    catalogId: string,
+  ): Promise<RootlyCatalogEntityResponse> {
+    const entityTriplet = stringifyEntityRef({
+      namespace: entity.metadata.namespace,
+      kind: entity.kind,
+      name: entity.metadata.name,
+    });
+    const init = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/vnd.api+json' },
+      body: JSON.stringify({
+        data: {
+          type: 'catalog_entities',
+          attributes: {
+            name:
+              entity.metadata.annotations?.[ROOTLY_ANNOTATION_CATALOG_ENTITY_NAME] ||
+              entity.metadata.name,
+            description: entity.metadata.description,
+            backstage_id: entityTriplet,
+          },
+        },
+      }),
+    };
+
+    const response = await this.fetch<RootlyCatalogEntityResponse>(
+      `/v1/catalogs/${catalogId}/entities`,
+      init,
+    );
+    return response;
+  }
+
+  async updateCatalogEntityEntity(
+    entity: RootlyEntity,
+    catalogEntity: RootlyCatalogEntity,
+    old_catalogEntity?: RootlyCatalogEntity,
+  ): Promise<RootlyCatalogEntityResponse> {
+    const entityTriplet = stringifyEntityRef({
+      namespace: entity.metadata.namespace,
+      kind: entity.kind,
+      name: entity.metadata.name,
+    });
+
+    if (old_catalogEntity?.id) {
+      const init1 = {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/vnd.api+json' },
+        body: JSON.stringify({
+          data: {
+            type: 'catalog_entities',
+            attributes: {
+              backstage_id: null,
+            },
+          },
+        }),
+      };
+
+      await this.call(`/v1/catalog_entities/${old_catalogEntity.id}`, init1);
+    }
+
+    const init2 = {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/vnd.api+json' },
+      body: JSON.stringify({
+        data: {
+          type: 'catalog_entities',
+          attributes: {
+            name:
+              entity.metadata.annotations?.[ROOTLY_ANNOTATION_CATALOG_ENTITY_NAME] ||
+              entity.metadata.name,
+            description: entity.metadata.description,
+            backstage_id: entityTriplet,
+          },
+        },
+      }),
+    };
+
+    const response = await this.fetch<RootlyCatalogEntityResponse>(
+      `/v1/catalog_entities/${catalogEntity.id}`,
+      init2,
+    );
+    return response;
+  }
+
+  async deleteCatalogEntityEntity(
+    catalogEntity: RootlyCatalogEntity,
+  ): Promise<void> {
+    const init = {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/vnd.api+json' },
+      body: JSON.stringify({
+        data: {
+          type: 'catalog_entities',
+          attributes: {
+            backstage_id: null,
+          },
+        },
+      }),
+    };
+
+    await this.call(`/v1/catalog_entities/${catalogEntity.id}`, init);
+  }
+
+  getCreateIncidentURL(): string {
+    return `${this.apiHost}/account/incidents/new`;
+  }
+
+  getListIncidents(): string {
+    return `${this.apiHost}/account/incidents`;
+  }
+
+  getListIncidentsForServiceURL(service: RootlyService): string {
     const params = qs.stringify(
       { filter: { filters: ['services'], services: [service.id] } },
       { arrayFormat: 'brackets' },
     );
-    return `https://rootly.com/account/incidents?${params}`;
+    return `${this.apiHost}/account/incidents?${params}`;
   }
 
-  static getListIncidentsForFunctionalityURL(
+  getListIncidentsForFunctionalityURL(
     functionality: RootlyFunctionality,
   ): string {
     const params = qs.stringify(
       { filter: { filters: ['functionalities'], groups: [functionality.id] } },
       { arrayFormat: 'brackets' },
     );
-    return `https://rootly.com/account/incidents?${params}`;
+    return `${this.apiHost}/account/incidents?${params}`;
   }
 
-  static getListIncidentsForTeamURL(team: RootlyTeam): string {
+  getListIncidentsForTeamURL(team: RootlyTeam): string {
     const params = qs.stringify(
       { filter: { filters: ['groups'], groups: [team.id] } },
       { arrayFormat: 'brackets' },
     );
-    return `https://rootly.com/account/incidents?${params}`;
+    return `${this.apiHost}/account/incidents?${params}`;
   }
 
-  static getServiceDetailsURL(service: RootlyService): string {
-    return `https://rootly.com/account/services/${service.attributes.slug}`;
+  getServiceDetailsURL(service: RootlyService): string {
+    return `${this.apiHost}/account/services/${service.attributes.slug}`;
   }
 
-  static getFunctionalityDetailsURL(
+  getFunctionalityDetailsURL(
     functionality: RootlyFunctionality,
   ): string {
-    return `https://rootly.com/account/functionalities/${functionality.attributes.slug}`;
+    return `${this.apiHost}/account/functionalities/${functionality.attributes.slug}`;
   }
 
-  static getTeamDetailsURL(team: RootlyTeam): string {
-    return `https://rootly.com/account/teams/${team.attributes.slug}`;
+  getTeamDetailsURL(team: RootlyTeam): string {
+    return `${this.apiHost}/account/teams/${team.attributes.slug}`;
+  }
+
+  getCatalogEntityDetailsURL(
+    catalogEntity: RootlyCatalogEntity,
+    catalogSlug?: string,
+  ): string {
+    if (catalogSlug) {
+      return `${this.apiHost}/account/catalogs/${catalogSlug}/entities/${catalogEntity.attributes.slug}`;
+    }
+    return `${this.apiHost}/account/catalogs`;
   }
 }

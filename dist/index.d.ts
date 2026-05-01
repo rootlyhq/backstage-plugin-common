@@ -160,11 +160,44 @@ interface RootlyIncident {
     ];
 }
 /** @public */
+interface RootlyCatalog {
+    id: string;
+    type: string;
+    attributes: {
+        name: string;
+        slug: string;
+        description: string | undefined;
+        position: number | undefined;
+        created_at: string;
+        updated_at: string;
+    };
+}
+/** @public */
+interface RootlyCatalogEntity {
+    id: string;
+    type: string;
+    attributes: {
+        name: string;
+        slug: string;
+        description: string | undefined;
+        catalog_id: string;
+        position: number | undefined;
+        backstage_id: string | undefined;
+        properties: Array<{
+            catalog_property_id: string;
+            value: any;
+        }> | undefined;
+        created_at: string;
+        updated_at: string;
+    };
+}
+/** @public */
 interface RootlyEntity extends Entity {
     rootlyKind: string | undefined;
     linkedService: RootlyService | undefined;
     linkedFunctionality: RootlyFunctionality | undefined;
     linkedTeam: RootlyTeam | undefined;
+    linkedCatalogEntity: RootlyCatalogEntity | undefined;
 }
 
 /** @public */
@@ -193,6 +226,20 @@ declare const ROOTLY_ANNOTATION_TEAM_NAME = "rootly.com/team-name";
 declare const ROOTLY_ANNOTATION_TEAM_SLUG = "rootly.com/team-slug";
 /** @public */
 declare const ROOTLY_ANNOTATION_TEAM_AUTO_IMPORT = "rootly.com/team-auto-import";
+/** @public */
+declare const ROOTLY_ANNOTATION_CATALOG_ENTITY_ID = "rootly.com/catalog-entity-id";
+/** @public */
+declare const ROOTLY_ANNOTATION_CATALOG_ENTITY_NAME = "rootly.com/catalog-entity-name";
+/** @public */
+declare const ROOTLY_ANNOTATION_CATALOG_ENTITY_SLUG = "rootly.com/catalog-entity-slug";
+/** @public */
+declare const ROOTLY_ANNOTATION_CATALOG_ENTITY_AUTO_IMPORT = "rootly.com/catalog-entity-auto-import";
+/** @public */
+declare const ROOTLY_ANNOTATION_CATALOG_ID = "rootly.com/catalog-id";
+/** @public */
+declare const ROOTLY_ANNOTATION_CATALOG_SLUG = "rootly.com/catalog-slug";
+/** @public */
+declare const ROOTLY_ANNOTATION_CATALOG_DESCRIPTION = "rootly.com/catalog-description";
 
 type RootlyServicesFetchOpts = {
     page?: {
@@ -226,6 +273,22 @@ type RootlyIncidentsFetchOpts = {
     filter?: object;
     include?: string;
 };
+type RootlyCatalogsFetchOpts = {
+    page?: {
+        number?: number;
+        size?: number;
+    };
+    filter?: object;
+    include?: string;
+};
+type RootlyCatalogEntitiesFetchOpts = {
+    page?: {
+        number?: number;
+        size?: number;
+    };
+    filter?: object;
+    include?: string;
+};
 interface Rootly {
     getService(id_or_slug: String): Promise<RootlyServiceResponse>;
     getServices(opts?: RootlyServicesFetchOpts): Promise<RootlyServicesResponse>;
@@ -243,6 +306,16 @@ interface Rootly {
     importTeamEntity(entity: RootlyEntity): Promise<RootlyTeamResponse>;
     updateTeamEntity(entity: RootlyEntity, functionality: RootlyTeam, old_functionality?: RootlyTeam): Promise<RootlyTeamResponse>;
     deleteTeamEntity(team: RootlyTeam): Promise<void>;
+    getCatalogs(opts?: RootlyCatalogsFetchOpts): Promise<RootlyCatalogsResponse>;
+    getCatalogEntity(id_or_slug: String, opts?: {
+        include?: string;
+    }): Promise<RootlyCatalogEntityResponse>;
+    getCatalogEntities(catalog_id: String, opts?: RootlyCatalogEntitiesFetchOpts): Promise<RootlyCatalogEntitiesResponse>;
+    importCatalogEntityEntity(entity: RootlyEntity, catalogId: string): Promise<RootlyCatalogEntityResponse>;
+    updateCatalogEntityEntity(entity: RootlyEntity, catalogEntity: RootlyCatalogEntity, old_catalogEntity?: RootlyCatalogEntity): Promise<RootlyCatalogEntityResponse>;
+    deleteCatalogEntityEntity(catalogEntity: RootlyCatalogEntity): Promise<void>;
+    findOrCreateCatalog(nameOrSlug: string, description?: string): Promise<RootlyCatalogResponse>;
+    getCatalogEntityDetailsURL(catalogEntity: RootlyCatalogEntity, catalogSlug: string): string;
     getCreateIncidentURL(): string;
     getListIncidents(): string;
     getListIncidentsForServiceURL(service: RootlyService): string;
@@ -312,6 +385,31 @@ interface RootlyIncidentsResponse {
         self: string;
     };
 }
+interface RootlyCatalogResponse {
+    data: RootlyCatalog;
+}
+interface RootlyCatalogsResponse {
+    meta: {
+        total_count: number;
+        total_pages: number;
+    };
+    data: RootlyCatalog[];
+}
+interface RootlyCatalogEntityResponse {
+    data: RootlyCatalogEntity;
+    included?: Array<{
+        id: string;
+        type: string;
+        attributes: any;
+    }>;
+}
+interface RootlyCatalogEntitiesResponse {
+    meta: {
+        total_count: number;
+        total_pages: number;
+    };
+    data: RootlyCatalogEntity[];
+}
 type Options = {
     /**
      * apiProxyUrl used to access Rootly API through proxy
@@ -330,6 +428,11 @@ type Options = {
     apiToken: Promise<{
         token?: string | undefined;
     }>;
+    /**
+     * apiHost for Rootly web UI links
+     * Example: https://rootly.com or https://staging.rootly.com
+     */
+    apiHost?: string;
 };
 /**
  * API to talk to Rootly.
@@ -338,6 +441,7 @@ declare class RootlyApi {
     private readonly apiProxyUrl;
     private readonly apiProxyPath;
     private readonly apiToken;
+    private readonly apiHost;
     constructor(opts: Options);
     private removeEmptyAttributes;
     private fetch;
@@ -375,14 +479,24 @@ declare class RootlyApi {
     importTeamEntity(entity: RootlyEntity): Promise<RootlyTeamResponse>;
     updateTeamEntity(entity: RootlyEntity, team: RootlyTeam, old_team?: RootlyTeam): Promise<RootlyTeamResponse>;
     deleteTeamEntity(team: RootlyTeam): Promise<void>;
-    static getCreateIncidentURL(): string;
-    static getListIncidents(): string;
-    static getListIncidentsForServiceURL(service: RootlyService): string;
-    static getListIncidentsForFunctionalityURL(functionality: RootlyFunctionality): string;
-    static getListIncidentsForTeamURL(team: RootlyTeam): string;
-    static getServiceDetailsURL(service: RootlyService): string;
-    static getFunctionalityDetailsURL(functionality: RootlyFunctionality): string;
-    static getTeamDetailsURL(team: RootlyTeam): string;
+    getCatalogs(opts?: RootlyCatalogsFetchOpts): Promise<RootlyCatalogsResponse>;
+    findOrCreateCatalog(nameOrSlug: string, description?: string): Promise<RootlyCatalogResponse>;
+    getCatalogEntity(id_or_slug: String, opts?: {
+        include?: string;
+    }): Promise<RootlyCatalogEntityResponse>;
+    getCatalogEntities(catalog_id: String, opts?: RootlyCatalogEntitiesFetchOpts): Promise<RootlyCatalogEntitiesResponse>;
+    importCatalogEntityEntity(entity: RootlyEntity, catalogId: string): Promise<RootlyCatalogEntityResponse>;
+    updateCatalogEntityEntity(entity: RootlyEntity, catalogEntity: RootlyCatalogEntity, old_catalogEntity?: RootlyCatalogEntity): Promise<RootlyCatalogEntityResponse>;
+    deleteCatalogEntityEntity(catalogEntity: RootlyCatalogEntity): Promise<void>;
+    getCreateIncidentURL(): string;
+    getListIncidents(): string;
+    getListIncidentsForServiceURL(service: RootlyService): string;
+    getListIncidentsForFunctionalityURL(functionality: RootlyFunctionality): string;
+    getListIncidentsForTeamURL(team: RootlyTeam): string;
+    getServiceDetailsURL(service: RootlyService): string;
+    getFunctionalityDetailsURL(functionality: RootlyFunctionality): string;
+    getTeamDetailsURL(team: RootlyTeam): string;
+    getCatalogEntityDetailsURL(catalogEntity: RootlyCatalogEntity, catalogSlug?: string): string;
 }
 
-export { ROOTLY_ANNOTATION_FUNCTIONALITY_AUTO_IMPORT, ROOTLY_ANNOTATION_FUNCTIONALITY_ID, ROOTLY_ANNOTATION_FUNCTIONALITY_NAME, ROOTLY_ANNOTATION_FUNCTIONALITY_SLUG, ROOTLY_ANNOTATION_ORG_ID, ROOTLY_ANNOTATION_SERVICE_AUTO_IMPORT, ROOTLY_ANNOTATION_SERVICE_ID, ROOTLY_ANNOTATION_SERVICE_NAME, ROOTLY_ANNOTATION_SERVICE_SLUG, ROOTLY_ANNOTATION_TEAM_AUTO_IMPORT, ROOTLY_ANNOTATION_TEAM_ID, ROOTLY_ANNOTATION_TEAM_NAME, ROOTLY_ANNOTATION_TEAM_SLUG, type Rootly, RootlyApi, type RootlyEntity, type RootlyEnvironment, type RootlyFunctionalitiesFetchOpts, type RootlyFunctionalitiesResponse, type RootlyFunctionality, type RootlyFunctionalityResponse, type RootlyIncident, type RootlyIncidentType, type RootlyIncidentsFetchOpts, type RootlyIncidentsResponse, type RootlyRelationship, type RootlyResponderRef, type RootlyService, type RootlyServiceResponse, type RootlyServicesFetchOpts, type RootlyServicesResponse, type RootlySeverity, type RootlyTeam, type RootlyTeamResponse, type RootlyTeamsFetchOpts, type RootlyTeamsResponse, type RootlyUser };
+export { ROOTLY_ANNOTATION_CATALOG_DESCRIPTION, ROOTLY_ANNOTATION_CATALOG_ENTITY_AUTO_IMPORT, ROOTLY_ANNOTATION_CATALOG_ENTITY_ID, ROOTLY_ANNOTATION_CATALOG_ENTITY_NAME, ROOTLY_ANNOTATION_CATALOG_ENTITY_SLUG, ROOTLY_ANNOTATION_CATALOG_ID, ROOTLY_ANNOTATION_CATALOG_SLUG, ROOTLY_ANNOTATION_FUNCTIONALITY_AUTO_IMPORT, ROOTLY_ANNOTATION_FUNCTIONALITY_ID, ROOTLY_ANNOTATION_FUNCTIONALITY_NAME, ROOTLY_ANNOTATION_FUNCTIONALITY_SLUG, ROOTLY_ANNOTATION_ORG_ID, ROOTLY_ANNOTATION_SERVICE_AUTO_IMPORT, ROOTLY_ANNOTATION_SERVICE_ID, ROOTLY_ANNOTATION_SERVICE_NAME, ROOTLY_ANNOTATION_SERVICE_SLUG, ROOTLY_ANNOTATION_TEAM_AUTO_IMPORT, ROOTLY_ANNOTATION_TEAM_ID, ROOTLY_ANNOTATION_TEAM_NAME, ROOTLY_ANNOTATION_TEAM_SLUG, type Rootly, RootlyApi, type RootlyCatalog, type RootlyCatalogEntitiesFetchOpts, type RootlyCatalogEntitiesResponse, type RootlyCatalogEntity, type RootlyCatalogEntityResponse, type RootlyCatalogResponse, type RootlyCatalogsFetchOpts, type RootlyCatalogsResponse, type RootlyEntity, type RootlyEnvironment, type RootlyFunctionalitiesFetchOpts, type RootlyFunctionalitiesResponse, type RootlyFunctionality, type RootlyFunctionalityResponse, type RootlyIncident, type RootlyIncidentType, type RootlyIncidentsFetchOpts, type RootlyIncidentsResponse, type RootlyRelationship, type RootlyResponderRef, type RootlyService, type RootlyServiceResponse, type RootlyServicesFetchOpts, type RootlyServicesResponse, type RootlySeverity, type RootlyTeam, type RootlyTeamResponse, type RootlyTeamsFetchOpts, type RootlyTeamsResponse, type RootlyUser };

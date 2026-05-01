@@ -24,3 +24,17 @@ export declare const ROOTLY_ANNOTATION_TEAM_NAME = "rootly.com/team-name";
 export declare const ROOTLY_ANNOTATION_TEAM_SLUG = "rootly.com/team-slug";
 /** @public */
 export declare const ROOTLY_ANNOTATION_TEAM_AUTO_IMPORT = "rootly.com/team-auto-import";
+/** @public */
+export declare const ROOTLY_ANNOTATION_CATALOG_ENTITY_ID = "rootly.com/catalog-entity-id";
+/** @public */
+export declare const ROOTLY_ANNOTATION_CATALOG_ENTITY_NAME = "rootly.com/catalog-entity-name";
+/** @public */
+export declare const ROOTLY_ANNOTATION_CATALOG_ENTITY_SLUG = "rootly.com/catalog-entity-slug";
+/** @public */
+export declare const ROOTLY_ANNOTATION_CATALOG_ENTITY_AUTO_IMPORT = "rootly.com/catalog-entity-auto-import";
+/** @public */
+export declare const ROOTLY_ANNOTATION_CATALOG_ID = "rootly.com/catalog-id";
+/** @public */
+export declare const ROOTLY_ANNOTATION_CATALOG_SLUG = "rootly.com/catalog-slug";
+/** @public */
+export declare const ROOTLY_ANNOTATION_CATALOG_DESCRIPTION = "rootly.com/catalog-description";

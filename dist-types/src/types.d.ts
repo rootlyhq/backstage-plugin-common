@@ -159,9 +159,42 @@ export interface RootlyIncident {
     ];
 }
 /** @public */
+export interface RootlyCatalog {
+    id: string;
+    type: string;
+    attributes: {
+        name: string;
+        slug: string;
+        description: string | undefined;
+        position: number | undefined;
+        created_at: string;
+        updated_at: string;
+    };
+}
+/** @public */
+export interface RootlyCatalogEntity {
+    id: string;
+    type: string;
+    attributes: {
+        name: string;
+        slug: string;
+        description: string | undefined;
+        catalog_id: string;
+        position: number | undefined;
+        backstage_id: string | undefined;
+        properties: Array<{
+            catalog_property_id: string;
+            value: any;
+        }> | undefined;
+        created_at: string;
+        updated_at: string;
+    };
+}
+/** @public */
 export interface RootlyEntity extends BackstageEntity {
     rootlyKind: string | undefined;
     linkedService: RootlyService | undefined;
     linkedFunctionality: RootlyFunctionality | undefined;
     linkedTeam: RootlyTeam | undefined;
+    linkedCatalogEntity: RootlyCatalogEntity | undefined;
 }

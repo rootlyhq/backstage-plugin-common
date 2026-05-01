@@ -1,16 +1,9 @@
 export class RootlyApi {
-    static getCreateIncidentURL(): string;
-    static getListIncidents(): string;
-    static getListIncidentsForServiceURL(service: any): string;
-    static getListIncidentsForFunctionalityURL(functionality: any): string;
-    static getListIncidentsForTeamURL(team: any): string;
-    static getServiceDetailsURL(service: any): string;
-    static getFunctionalityDetailsURL(functionality: any): string;
-    static getTeamDetailsURL(team: any): string;
     constructor(opts: any);
     apiProxyUrl: any;
     apiProxyPath: any;
     apiToken: any;
+    apiHost: any;
     removeEmptyAttributes(obj: any): any;
     fetch(input: any, init: any): Promise<any>;
     call(input: any, init: any): Promise<void>;
@@ -35,4 +28,20 @@ export class RootlyApi {
     importTeamEntity(entity: any): Promise<any>;
     updateTeamEntity(entity: any, team: any, old_team: any): Promise<any>;
     deleteTeamEntity(team: any): Promise<void>;
+    getCatalogs(opts: any): Promise<any>;
+    findOrCreateCatalog(nameOrSlug: any, description: any): Promise<any>;
+    getCatalogEntity(id_or_slug: any, opts: any): Promise<any>;
+    getCatalogEntities(catalog_id: any, opts: any): Promise<any>;
+    importCatalogEntityEntity(entity: any, catalogId: any): Promise<any>;
+    updateCatalogEntityEntity(entity: any, catalogEntity: any, old_catalogEntity: any): Promise<any>;
+    deleteCatalogEntityEntity(catalogEntity: any): Promise<void>;
+    getCreateIncidentURL(): string;
+    getListIncidents(): string;
+    getListIncidentsForServiceURL(service: any): string;
+    getListIncidentsForFunctionalityURL(functionality: any): string;
+    getListIncidentsForTeamURL(team: any): string;
+    getServiceDetailsURL(service: any): string;
+    getFunctionalityDetailsURL(functionality: any): string;
+    getTeamDetailsURL(team: any): string;
+    getCatalogEntityDetailsURL(catalogEntity: any, catalogSlug: any): string;
 }
