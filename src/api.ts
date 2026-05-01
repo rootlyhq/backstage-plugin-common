@@ -816,24 +816,35 @@ export class RootlyApi {
       return { data: listResponse.data[0] };
     }
 
-    const createInit = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/vnd.api+json' },
-      body: JSON.stringify({
-        data: {
-          type: 'catalogs',
-          attributes: {
-            name: nameOrSlug,
+    try {
+      const createInit = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/vnd.api+json' },
+        body: JSON.stringify({
+          data: {
+            type: 'catalogs',
+            attributes: {
+              name: nameOrSlug,
+            },
           },
-        },
-      }),
-    };
+        }),
+      };
 
-    const response = await this.fetch<RootlyCatalogResponse>(
-      `/v1/catalogs`,
-      createInit,
-    );
-    return response;
+      const response = await this.fetch<RootlyCatalogResponse>(
+        `/v1/catalogs`,
+        createInit,
+      );
+      return response;
+    } catch (_) {
+      const retryResponse = await this.fetch<RootlyCatalogsResponse>(
+        `/v1/catalogs?${params}`,
+        init,
+      );
+      if (retryResponse.data && retryResponse.data.length > 0) {
+        return { data: retryResponse.data[0] };
+      }
+      throw new Error(`Catalog '${nameOrSlug}' not found and could not be created`);
+    }
   }
 
   async getCatalogEntity(
