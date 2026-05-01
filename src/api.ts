@@ -14,6 +14,7 @@ import {
   ROOTLY_ANNOTATION_TEAM_NAME,
   ROOTLY_ANNOTATION_SERVICE_NAME,
   ROOTLY_ANNOTATION_CATALOG_ENTITY_NAME,
+  ROOTLY_ANNOTATION_CATALOG_DESCRIPTION,
 } from './constants';
 
 export type RootlyServicesFetchOpts = {
@@ -129,7 +130,7 @@ export interface Rootly {
   ): Promise<RootlyCatalogEntityResponse>;
   deleteCatalogEntityEntity(catalogEntity: RootlyCatalogEntity): Promise<void>;
 
-  findOrCreateCatalog(nameOrSlug: string): Promise<RootlyCatalogResponse>;
+  findOrCreateCatalog(nameOrSlug: string, description?: string): Promise<RootlyCatalogResponse>;
   getCatalogEntityDetailsURL(catalogEntity: RootlyCatalogEntity, catalogSlug: string): string;
 
   getCreateIncidentURL(): string;
@@ -803,6 +804,7 @@ export class RootlyApi {
 
   async findOrCreateCatalog(
     nameOrSlug: string,
+    description?: string,
   ): Promise<RootlyCatalogResponse> {
     const init = { headers: { 'Content-Type': 'application/vnd.api+json' } };
 
@@ -825,6 +827,7 @@ export class RootlyApi {
             type: 'catalogs',
             attributes: {
               name: nameOrSlug,
+            description: description,
             },
           },
         }),

@@ -36,3 +36,5 @@ export declare const ROOTLY_ANNOTATION_CATALOG_ENTITY_AUTO_IMPORT = "rootly.com/
 export declare const ROOTLY_ANNOTATION_CATALOG_ID = "rootly.com/catalog-id";
 /** @public */
 export declare const ROOTLY_ANNOTATION_CATALOG_SLUG = "rootly.com/catalog-slug";
+/** @public */
+export declare const ROOTLY_ANNOTATION_CATALOG_DESCRIPTION = "rootly.com/catalog-description";
