@@ -30,7 +30,7 @@ export class RootlyApi {
     deleteTeamEntity(team: any): Promise<void>;
     getCatalogs(opts: any): Promise<any>;
     findOrCreateCatalog(nameOrSlug: any, description: any): Promise<any>;
-    getCatalogEntity(id_or_slug: any): Promise<any>;
+    getCatalogEntity(id_or_slug: any, opts: any): Promise<any>;
     getCatalogEntities(catalog_id: any, opts: any): Promise<any>;
     importCatalogEntityEntity(entity: any, catalogId: any): Promise<any>;
     updateCatalogEntityEntity(entity: any, catalogEntity: any, old_catalogEntity: any): Promise<any>;

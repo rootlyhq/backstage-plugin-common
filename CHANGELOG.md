@@ -1,5 +1,21 @@
 # @rootly/backstage-plugin-common
 
+## 1.3.0 - 2026-05-01
+
+### Added
+- Catalog entity support: `RootlyCatalog` and `RootlyCatalogEntity` types
+- 7 new annotation constants: `catalog-entity-id`, `catalog-entity-name`, `catalog-entity-slug`, `catalog-entity-auto-import`, `catalog-id`, `catalog-slug`, `catalog-description`
+- API methods: `getCatalogs`, `getCatalogEntity` (with `include` support), `getCatalogEntities`, `importCatalogEntityEntity`, `updateCatalogEntityEntity`, `deleteCatalogEntityEntity`
+- `findOrCreateCatalog` with race condition retry on duplicate
+- `getCatalogEntityDetailsURL` with catalog slug resolution
+- `linkedCatalogEntity` field on `RootlyEntity` bridge type
+
+### Changed
+- URL helper methods converted from static to instance methods
+- New `apiHost` option on `RootlyApi` constructor (defaults to `https://rootly.com`)
+- `RootlyCatalogEntityResponse` includes optional `included` array for sideloaded catalog data
+
+
 ## 1.2.0 - 2026-04-23
 
 ### Changed
