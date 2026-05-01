@@ -1,3 +1,4 @@
+export const ROOTLY_ANNOTATION_CATALOG_DESCRIPTION: "rootly.com/catalog-description";
 export const ROOTLY_ANNOTATION_CATALOG_ENTITY_AUTO_IMPORT: "rootly.com/catalog-entity-auto-import";
 export const ROOTLY_ANNOTATION_CATALOG_ENTITY_ID: "rootly.com/catalog-entity-id";
 export const ROOTLY_ANNOTATION_CATALOG_ENTITY_NAME: "rootly.com/catalog-entity-name";

@@ -307,7 +307,9 @@ interface Rootly {
     updateTeamEntity(entity: RootlyEntity, functionality: RootlyTeam, old_functionality?: RootlyTeam): Promise<RootlyTeamResponse>;
     deleteTeamEntity(team: RootlyTeam): Promise<void>;
     getCatalogs(opts?: RootlyCatalogsFetchOpts): Promise<RootlyCatalogsResponse>;
-    getCatalogEntity(id_or_slug: String): Promise<RootlyCatalogEntityResponse>;
+    getCatalogEntity(id_or_slug: String, opts?: {
+        include?: string;
+    }): Promise<RootlyCatalogEntityResponse>;
     getCatalogEntities(catalog_id: String, opts?: RootlyCatalogEntitiesFetchOpts): Promise<RootlyCatalogEntitiesResponse>;
     importCatalogEntityEntity(entity: RootlyEntity, catalogId: string): Promise<RootlyCatalogEntityResponse>;
     updateCatalogEntityEntity(entity: RootlyEntity, catalogEntity: RootlyCatalogEntity, old_catalogEntity?: RootlyCatalogEntity): Promise<RootlyCatalogEntityResponse>;
@@ -395,6 +397,11 @@ interface RootlyCatalogsResponse {
 }
 interface RootlyCatalogEntityResponse {
     data: RootlyCatalogEntity;
+    included?: Array<{
+        id: string;
+        type: string;
+        attributes: any;
+    }>;
 }
 interface RootlyCatalogEntitiesResponse {
     meta: {
@@ -474,7 +481,9 @@ declare class RootlyApi {
     deleteTeamEntity(team: RootlyTeam): Promise<void>;
     getCatalogs(opts?: RootlyCatalogsFetchOpts): Promise<RootlyCatalogsResponse>;
     findOrCreateCatalog(nameOrSlug: string, description?: string): Promise<RootlyCatalogResponse>;
-    getCatalogEntity(id_or_slug: String): Promise<RootlyCatalogEntityResponse>;
+    getCatalogEntity(id_or_slug: String, opts?: {
+        include?: string;
+    }): Promise<RootlyCatalogEntityResponse>;
     getCatalogEntities(catalog_id: String, opts?: RootlyCatalogEntitiesFetchOpts): Promise<RootlyCatalogEntitiesResponse>;
     importCatalogEntityEntity(entity: RootlyEntity, catalogId: string): Promise<RootlyCatalogEntityResponse>;
     updateCatalogEntityEntity(entity: RootlyEntity, catalogEntity: RootlyCatalogEntity, old_catalogEntity?: RootlyCatalogEntity): Promise<RootlyCatalogEntityResponse>;

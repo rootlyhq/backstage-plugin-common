@@ -112,7 +112,7 @@ export interface Rootly {
 
 
   getCatalogs(opts?: RootlyCatalogsFetchOpts): Promise<RootlyCatalogsResponse>;
-  getCatalogEntity(id_or_slug: String): Promise<RootlyCatalogEntityResponse>;
+  getCatalogEntity(id_or_slug: String, opts?: { include?: string }): Promise<RootlyCatalogEntityResponse>;
   getCatalogEntities(
     catalog_id: String,
     opts?: RootlyCatalogEntitiesFetchOpts,
@@ -225,6 +225,7 @@ export interface RootlyCatalogsResponse {
 
 export interface RootlyCatalogEntityResponse {
   data: RootlyCatalogEntity;
+  included?: Array<{ id: string; type: string; attributes: any }>;
 }
 
 export interface RootlyCatalogEntitiesResponse {
@@ -851,10 +852,12 @@ export class RootlyApi {
 
   async getCatalogEntity(
     id_or_slug: String,
+    opts?: { include?: string },
   ): Promise<RootlyCatalogEntityResponse> {
     const init = { headers: { 'Content-Type': 'application/vnd.api+json' } };
+    const params = opts ? qs.stringify(opts, { encode: false }) : '';
     const response = await this.fetch<RootlyCatalogEntityResponse>(
-      `/v1/catalog_entities/${id_or_slug}`,
+      `/v1/catalog_entities/${id_or_slug}${params ? `?${params}` : ''}`,
       init,
     );
     return response;

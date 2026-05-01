@@ -462,10 +462,11 @@ class RootlyApi {
       throw new Error(`Catalog '${nameOrSlug}' not found and could not be created`);
     }
   }
-  async getCatalogEntity(id_or_slug) {
+  async getCatalogEntity(id_or_slug, opts) {
     const init = { headers: { "Content-Type": "application/vnd.api+json" } };
+    const params = opts ? qs.stringify(opts, { encode: false }) : "";
     const response = await this.fetch(
-      `/v1/catalog_entities/${id_or_slug}`,
+      `/v1/catalog_entities/${id_or_slug}${params ? `?${params}` : ""}`,
       init
     );
     return response;
