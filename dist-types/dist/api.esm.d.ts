@@ -7,6 +7,7 @@ export class RootlyApi {
     static getServiceDetailsURL(service: any): string;
     static getFunctionalityDetailsURL(functionality: any): string;
     static getTeamDetailsURL(team: any): string;
+    static getCatalogEntityDetailsURL(catalogEntity: any, catalogSlug: any): string;
     constructor(opts: any);
     apiProxyUrl: any;
     apiProxyPath: any;
@@ -35,4 +36,10 @@ export class RootlyApi {
     importTeamEntity(entity: any): Promise<any>;
     updateTeamEntity(entity: any, team: any, old_team: any): Promise<any>;
     deleteTeamEntity(team: any): Promise<void>;
+    getCatalogs(opts: any): Promise<any>;
+    getCatalogEntity(id_or_slug: any): Promise<any>;
+    getCatalogEntities(catalog_id: any, opts: any): Promise<any>;
+    importCatalogEntityEntity(entity: any, catalogId: any): Promise<any>;
+    updateCatalogEntityEntity(entity: any, catalogEntity: any, old_catalogEntity: any): Promise<any>;
+    deleteCatalogEntityEntity(catalogEntity: any): Promise<void>;
 }

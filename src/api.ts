@@ -254,6 +254,12 @@ type Options = {
    * Example: Bearer 12345678910
    */
   apiToken: Promise<{ token?: string | undefined }>;
+
+  /**
+   * apiHost for Rootly web UI links
+   * Example: https://rootly.com or https://staging.rootly.com
+   */
+  apiHost?: string;
 };
 
 /**
@@ -263,11 +269,13 @@ export class RootlyApi {
   private readonly apiProxyUrl: Promise<string>;
   private readonly apiProxyPath: string;
   private readonly apiToken: Promise<{ token?: string | undefined }>;
+  private readonly apiHost: string;
 
   constructor(opts: Options) {
     this.apiProxyUrl = opts.apiProxyUrl;
     this.apiProxyPath = opts.apiProxyPath ?? DEFAULT_PROXY_PATH;
     this.apiToken = opts.apiToken;
+    this.apiHost = opts.apiHost ?? 'https://rootly.com';
   }
 
   private removeEmptyAttributes<T>(obj: T): T {
@@ -920,61 +928,61 @@ export class RootlyApi {
     await this.call(`/v1/catalog_entities/${catalogEntity.id}`, init);
   }
 
-  static getCreateIncidentURL(): string {
-    return `https://rootly.com/account/incidents/new`;
+  getCreateIncidentURL(): string {
+    return `${this.apiHost}/account/incidents/new`;
   }
 
-  static getListIncidents(): string {
-    return `https://rootly.com/account/incidents`;
+  getListIncidents(): string {
+    return `${this.apiHost}/account/incidents`;
   }
 
-  static getListIncidentsForServiceURL(service: RootlyService): string {
+  getListIncidentsForServiceURL(service: RootlyService): string {
     const params = qs.stringify(
       { filter: { filters: ['services'], services: [service.id] } },
       { arrayFormat: 'brackets' },
     );
-    return `https://rootly.com/account/incidents?${params}`;
+    return `${this.apiHost}/account/incidents?${params}`;
   }
 
-  static getListIncidentsForFunctionalityURL(
+  getListIncidentsForFunctionalityURL(
     functionality: RootlyFunctionality,
   ): string {
     const params = qs.stringify(
       { filter: { filters: ['functionalities'], groups: [functionality.id] } },
       { arrayFormat: 'brackets' },
     );
-    return `https://rootly.com/account/incidents?${params}`;
+    return `${this.apiHost}/account/incidents?${params}`;
   }
 
-  static getListIncidentsForTeamURL(team: RootlyTeam): string {
+  getListIncidentsForTeamURL(team: RootlyTeam): string {
     const params = qs.stringify(
       { filter: { filters: ['groups'], groups: [team.id] } },
       { arrayFormat: 'brackets' },
     );
-    return `https://rootly.com/account/incidents?${params}`;
+    return `${this.apiHost}/account/incidents?${params}`;
   }
 
-  static getServiceDetailsURL(service: RootlyService): string {
-    return `https://rootly.com/account/services/${service.attributes.slug}`;
+  getServiceDetailsURL(service: RootlyService): string {
+    return `${this.apiHost}/account/services/${service.attributes.slug}`;
   }
 
-  static getFunctionalityDetailsURL(
+  getFunctionalityDetailsURL(
     functionality: RootlyFunctionality,
   ): string {
-    return `https://rootly.com/account/functionalities/${functionality.attributes.slug}`;
+    return `${this.apiHost}/account/functionalities/${functionality.attributes.slug}`;
   }
 
-  static getTeamDetailsURL(team: RootlyTeam): string {
-    return `https://rootly.com/account/teams/${team.attributes.slug}`;
+  getTeamDetailsURL(team: RootlyTeam): string {
+    return `${this.apiHost}/account/teams/${team.attributes.slug}`;
   }
 
-  static getCatalogEntityDetailsURL(
+  getCatalogEntityDetailsURL(
     catalogEntity: RootlyCatalogEntity,
     catalogSlug?: string,
   ): string {
     if (catalogSlug) {
-      return `https://rootly.com/account/catalogs/${catalogSlug}/entities/${catalogEntity.attributes.slug}`;
+      return `${this.apiHost}/account/catalogs/${catalogSlug}/entities/${catalogEntity.attributes.slug}`;
     }
-    return `https://rootly.com/account/catalogs`;
+    return `${this.apiHost}/account/catalogs`;
   }
 }

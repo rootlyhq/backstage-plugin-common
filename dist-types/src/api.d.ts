@@ -1,4 +1,4 @@
-import { RootlyEntity, RootlyIncident, RootlyService, RootlyFunctionality, RootlyTeam } from './types';
+import { RootlyEntity, RootlyIncident, RootlyService, RootlyFunctionality, RootlyTeam, RootlyCatalog, RootlyCatalogEntity } from './types';
 export type RootlyServicesFetchOpts = {
     page?: {
         number?: number;
@@ -31,6 +31,22 @@ export type RootlyIncidentsFetchOpts = {
     filter?: object;
     include?: string;
 };
+export type RootlyCatalogsFetchOpts = {
+    page?: {
+        number?: number;
+        size?: number;
+    };
+    filter?: object;
+    include?: string;
+};
+export type RootlyCatalogEntitiesFetchOpts = {
+    page?: {
+        number?: number;
+        size?: number;
+    };
+    filter?: object;
+    include?: string;
+};
 export interface Rootly {
     getService(id_or_slug: String): Promise<RootlyServiceResponse>;
     getServices(opts?: RootlyServicesFetchOpts): Promise<RootlyServicesResponse>;
@@ -48,6 +64,13 @@ export interface Rootly {
     importTeamEntity(entity: RootlyEntity): Promise<RootlyTeamResponse>;
     updateTeamEntity(entity: RootlyEntity, functionality: RootlyTeam, old_functionality?: RootlyTeam): Promise<RootlyTeamResponse>;
     deleteTeamEntity(team: RootlyTeam): Promise<void>;
+    getCatalogs(opts?: RootlyCatalogsFetchOpts): Promise<RootlyCatalogsResponse>;
+    getCatalogEntity(id_or_slug: String): Promise<RootlyCatalogEntityResponse>;
+    getCatalogEntities(catalog_id: String, opts?: RootlyCatalogEntitiesFetchOpts): Promise<RootlyCatalogEntitiesResponse>;
+    importCatalogEntityEntity(entity: RootlyEntity, catalogId: string): Promise<RootlyCatalogEntityResponse>;
+    updateCatalogEntityEntity(entity: RootlyEntity, catalogEntity: RootlyCatalogEntity, old_catalogEntity?: RootlyCatalogEntity): Promise<RootlyCatalogEntityResponse>;
+    deleteCatalogEntityEntity(catalogEntity: RootlyCatalogEntity): Promise<void>;
+    getCatalogEntityDetailsURL(catalogEntity: RootlyCatalogEntity, catalogSlug: string): string;
     getCreateIncidentURL(): string;
     getListIncidents(): string;
     getListIncidentsForServiceURL(service: RootlyService): string;
@@ -117,6 +140,26 @@ export interface RootlyIncidentsResponse {
         self: string;
     };
 }
+export interface RootlyCatalogResponse {
+    data: RootlyCatalog;
+}
+export interface RootlyCatalogsResponse {
+    meta: {
+        total_count: number;
+        total_pages: number;
+    };
+    data: RootlyCatalog[];
+}
+export interface RootlyCatalogEntityResponse {
+    data: RootlyCatalogEntity;
+}
+export interface RootlyCatalogEntitiesResponse {
+    meta: {
+        total_count: number;
+        total_pages: number;
+    };
+    data: RootlyCatalogEntity[];
+}
 type Options = {
     /**
      * apiProxyUrl used to access Rootly API through proxy
@@ -135,6 +178,11 @@ type Options = {
     apiToken: Promise<{
         token?: string | undefined;
     }>;
+    /**
+     * apiHost for Rootly web UI links
+     * Example: https://rootly.com or https://staging.rootly.com
+     */
+    apiHost?: string;
 };
 /**
  * API to talk to Rootly.
@@ -143,6 +191,7 @@ export declare class RootlyApi {
     private readonly apiProxyUrl;
     private readonly apiProxyPath;
     private readonly apiToken;
+    private readonly apiHost;
     constructor(opts: Options);
     private removeEmptyAttributes;
     private fetch;
@@ -180,13 +229,20 @@ export declare class RootlyApi {
     importTeamEntity(entity: RootlyEntity): Promise<RootlyTeamResponse>;
     updateTeamEntity(entity: RootlyEntity, team: RootlyTeam, old_team?: RootlyTeam): Promise<RootlyTeamResponse>;
     deleteTeamEntity(team: RootlyTeam): Promise<void>;
-    static getCreateIncidentURL(): string;
-    static getListIncidents(): string;
-    static getListIncidentsForServiceURL(service: RootlyService): string;
-    static getListIncidentsForFunctionalityURL(functionality: RootlyFunctionality): string;
-    static getListIncidentsForTeamURL(team: RootlyTeam): string;
-    static getServiceDetailsURL(service: RootlyService): string;
-    static getFunctionalityDetailsURL(functionality: RootlyFunctionality): string;
-    static getTeamDetailsURL(team: RootlyTeam): string;
+    getCatalogs(opts?: RootlyCatalogsFetchOpts): Promise<RootlyCatalogsResponse>;
+    getCatalogEntity(id_or_slug: String): Promise<RootlyCatalogEntityResponse>;
+    getCatalogEntities(catalog_id: String, opts?: RootlyCatalogEntitiesFetchOpts): Promise<RootlyCatalogEntitiesResponse>;
+    importCatalogEntityEntity(entity: RootlyEntity, catalogId: string): Promise<RootlyCatalogEntityResponse>;
+    updateCatalogEntityEntity(entity: RootlyEntity, catalogEntity: RootlyCatalogEntity, old_catalogEntity?: RootlyCatalogEntity): Promise<RootlyCatalogEntityResponse>;
+    deleteCatalogEntityEntity(catalogEntity: RootlyCatalogEntity): Promise<void>;
+    getCreateIncidentURL(): string;
+    getListIncidents(): string;
+    getListIncidentsForServiceURL(service: RootlyService): string;
+    getListIncidentsForFunctionalityURL(functionality: RootlyFunctionality): string;
+    getListIncidentsForTeamURL(team: RootlyTeam): string;
+    getServiceDetailsURL(service: RootlyService): string;
+    getFunctionalityDetailsURL(functionality: RootlyFunctionality): string;
+    getTeamDetailsURL(team: RootlyTeam): string;
+    getCatalogEntityDetailsURL(catalogEntity: RootlyCatalogEntity, catalogSlug?: string): string;
 }
 export {};
