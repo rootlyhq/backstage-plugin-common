@@ -129,6 +129,7 @@ export interface Rootly {
   ): Promise<RootlyCatalogEntityResponse>;
   deleteCatalogEntityEntity(catalogEntity: RootlyCatalogEntity): Promise<void>;
 
+  findOrCreateCatalog(nameOrSlug: string): Promise<RootlyCatalogResponse>;
   getCatalogEntityDetailsURL(catalogEntity: RootlyCatalogEntity, catalogSlug: string): string;
 
   getCreateIncidentURL(): string;
@@ -796,6 +797,41 @@ export class RootlyApi {
     const response = await this.fetch<RootlyCatalogsResponse>(
       `/v1/catalogs?${params}`,
       init,
+    );
+    return response;
+  }
+
+  async findOrCreateCatalog(
+    nameOrSlug: string,
+  ): Promise<RootlyCatalogResponse> {
+    const init = { headers: { 'Content-Type': 'application/vnd.api+json' } };
+
+    const params = qs.stringify({ filter: { slug: nameOrSlug } }, { encode: false });
+    const listResponse = await this.fetch<RootlyCatalogsResponse>(
+      `/v1/catalogs?${params}`,
+      init,
+    );
+
+    if (listResponse.data && listResponse.data.length > 0) {
+      return { data: listResponse.data[0] };
+    }
+
+    const createInit = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/vnd.api+json' },
+      body: JSON.stringify({
+        data: {
+          type: 'catalogs',
+          attributes: {
+            name: nameOrSlug,
+          },
+        },
+      }),
+    };
+
+    const response = await this.fetch<RootlyCatalogResponse>(
+      `/v1/catalogs`,
+      createInit,
     );
     return response;
   }

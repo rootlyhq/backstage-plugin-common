@@ -422,6 +422,34 @@ class RootlyApi {
     );
     return response;
   }
+  async findOrCreateCatalog(nameOrSlug) {
+    const init = { headers: { "Content-Type": "application/vnd.api+json" } };
+    const params = qs.stringify({ filter: { slug: nameOrSlug } }, { encode: false });
+    const listResponse = await this.fetch(
+      `/v1/catalogs?${params}`,
+      init
+    );
+    if (listResponse.data && listResponse.data.length > 0) {
+      return { data: listResponse.data[0] };
+    }
+    const createInit = {
+      method: "POST",
+      headers: { "Content-Type": "application/vnd.api+json" },
+      body: JSON.stringify({
+        data: {
+          type: "catalogs",
+          attributes: {
+            name: nameOrSlug
+          }
+        }
+      })
+    };
+    const response = await this.fetch(
+      `/v1/catalogs`,
+      createInit
+    );
+    return response;
+  }
   async getCatalogEntity(id_or_slug) {
     const init = { headers: { "Content-Type": "application/vnd.api+json" } };
     const response = await this.fetch(

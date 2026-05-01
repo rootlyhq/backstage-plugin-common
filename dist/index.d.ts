@@ -310,6 +310,7 @@ interface Rootly {
     importCatalogEntityEntity(entity: RootlyEntity, catalogId: string): Promise<RootlyCatalogEntityResponse>;
     updateCatalogEntityEntity(entity: RootlyEntity, catalogEntity: RootlyCatalogEntity, old_catalogEntity?: RootlyCatalogEntity): Promise<RootlyCatalogEntityResponse>;
     deleteCatalogEntityEntity(catalogEntity: RootlyCatalogEntity): Promise<void>;
+    findOrCreateCatalog(nameOrSlug: string): Promise<RootlyCatalogResponse>;
     getCatalogEntityDetailsURL(catalogEntity: RootlyCatalogEntity, catalogSlug: string): string;
     getCreateIncidentURL(): string;
     getListIncidents(): string;
@@ -470,6 +471,7 @@ declare class RootlyApi {
     updateTeamEntity(entity: RootlyEntity, team: RootlyTeam, old_team?: RootlyTeam): Promise<RootlyTeamResponse>;
     deleteTeamEntity(team: RootlyTeam): Promise<void>;
     getCatalogs(opts?: RootlyCatalogsFetchOpts): Promise<RootlyCatalogsResponse>;
+    findOrCreateCatalog(nameOrSlug: string): Promise<RootlyCatalogResponse>;
     getCatalogEntity(id_or_slug: String): Promise<RootlyCatalogEntityResponse>;
     getCatalogEntities(catalog_id: String, opts?: RootlyCatalogEntitiesFetchOpts): Promise<RootlyCatalogEntitiesResponse>;
     importCatalogEntityEntity(entity: RootlyEntity, catalogId: string): Promise<RootlyCatalogEntityResponse>;
