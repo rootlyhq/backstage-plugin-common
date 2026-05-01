@@ -422,7 +422,7 @@ class RootlyApi {
     );
     return response;
   }
-  async findOrCreateCatalog(nameOrSlug) {
+  async findOrCreateCatalog(nameOrSlug, description) {
     const init = { headers: { "Content-Type": "application/vnd.api+json" } };
     const params = qs.stringify({ filter: { slug: nameOrSlug } }, { encode: false });
     const listResponse = await this.fetch(
@@ -440,7 +440,8 @@ class RootlyApi {
           data: {
             type: "catalogs",
             attributes: {
-              name: nameOrSlug
+              name: nameOrSlug,
+              description
             }
           }
         })
