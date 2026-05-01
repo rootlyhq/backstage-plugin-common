@@ -129,7 +129,7 @@ export interface Rootly {
   ): Promise<RootlyCatalogEntityResponse>;
   deleteCatalogEntityEntity(catalogEntity: RootlyCatalogEntity): Promise<void>;
 
-  getCatalogEntityDetailsURL(catalogEntity: RootlyCatalogEntity): string;
+  getCatalogEntityDetailsURL(catalogEntity: RootlyCatalogEntity, catalogSlug: string): string;
 
   getCreateIncidentURL(): string;
   getListIncidents(): string;
@@ -970,7 +970,11 @@ export class RootlyApi {
 
   static getCatalogEntityDetailsURL(
     catalogEntity: RootlyCatalogEntity,
+    catalogSlug?: string,
   ): string {
-    return `https://rootly.com/account/catalog_entities/${catalogEntity.attributes.slug}`;
+    if (catalogSlug) {
+      return `https://rootly.com/account/catalogs/${catalogSlug}/entities/${catalogEntity.attributes.slug}`;
+    }
+    return `https://rootly.com/account/catalogs`;
   }
 }
