@@ -38,3 +38,15 @@ export const ROOTLY_ANNOTATION_CATALOG_ID = "rootly.com/catalog-id";
 export const ROOTLY_ANNOTATION_CATALOG_SLUG = "rootly.com/catalog-slug";
 /** @public */
 export const ROOTLY_ANNOTATION_CATALOG_DESCRIPTION = "rootly.com/catalog-description";
+/** @public */
+export const ROOTLY_ANNOTATION_SERVICE_ATTR_PREFIX = "rootly.com/service-attr-";
+/** @public */
+export const ROOTLY_ANNOTATION_SERVICE_PROPERTY_PREFIX = "rootly.com/service-property-";
+/** @public */
+export const ROOTLY_ANNOTATION_FUNCTIONALITY_ATTR_PREFIX = "rootly.com/functionality-attr-";
+/** @public */
+export const ROOTLY_ANNOTATION_TEAM_ATTR_PREFIX = "rootly.com/team-attr-";
+/** @public */
+export const ROOTLY_ANNOTATION_CATALOG_ENTITY_ATTR_PREFIX = "rootly.com/catalog-entity-attr-";
+/** @public */
+export const ROOTLY_ANNOTATION_CATALOG_ENTITY_PROPERTY_PREFIX = "rootly.com/catalog-entity-property-";
