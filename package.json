@@ -32,7 +32,7 @@
     "clean": "backstage-cli package clean"
   },
   "devDependencies": {
-    "@backstage/cli": "^0.34.3",
+    "@backstage/cli": "^0.36.2",
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
     "typescript": "^5.9.3"
