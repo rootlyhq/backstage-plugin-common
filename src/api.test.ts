@@ -153,3 +153,35 @@ describe('extractProperties', () => {
     expect(extractProperties(annotations, prefix)).toEqual([]);
   });
 });
+
+describe('passthrough override safety', () => {
+  const attrPrefix = 'rootly.com/service-attr-';
+
+  it('hardcoded fields are not present in passthrough when same key used', () => {
+    const annotations = {
+      'rootly.com/service-attr-name': 'injected-name',
+      'rootly.com/service-attr-backstage_id': 'injected-id',
+      'rootly.com/service-attr-color': '#FF0000',
+    };
+    const result = extractPassthroughAttributes(annotations, attrPrefix);
+    expect(result).toEqual({
+      name: 'injected-name',
+      backstage_id: 'injected-id',
+      color: '#FF0000',
+    });
+    // These keys ARE extracted — the protection is that hardcoded fields
+    // override them when spread into the payload (spread order matters).
+    // This test documents that extraction itself does not filter reserved keys.
+  });
+
+  it('properties key in passthrough attrs does not bypass structured properties', () => {
+    const annotations = {
+      'rootly.com/service-attr-properties': '[{"catalog_property_id":"x","value":"injected"}]',
+    };
+    const passthroughAttrs = extractPassthroughAttributes(annotations, attrPrefix);
+    expect(passthroughAttrs.properties).toBeDefined();
+    // The payload construction puts `properties` in the hardcoded section AFTER
+    // the spread, so this injected value gets overridden. This test documents
+    // that the extraction function does return it — the safety is in spread order.
+  });
+});

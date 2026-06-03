@@ -543,7 +543,6 @@ export class RootlyApi {
           type: 'services',
           attributes: {
             ...passthroughAttrs,
-            ...(properties.length > 0 ? { properties } : {}),
             name:
               entity.metadata.annotations?.[ROOTLY_ANNOTATION_SERVICE_NAME] ||
               entity.metadata.name,
@@ -552,6 +551,7 @@ export class RootlyApi {
             pagerduty_id:
               entity.metadata.annotations?.['pagerduty.com/service-id'],
             owner_group_ids: ownerGroupIds.length > 0 ? ownerGroupIds : undefined,
+            properties: properties.length > 0 ? properties : undefined,
           },
         },
       }),
@@ -600,7 +600,6 @@ export class RootlyApi {
           type: 'services',
           attributes: {
             ...passthroughAttrs,
-            ...(properties.length > 0 ? { properties } : {}),
             name:
               entity.metadata.annotations?.[ROOTLY_ANNOTATION_SERVICE_NAME] ||
               entity.metadata.name,
@@ -609,6 +608,7 @@ export class RootlyApi {
             pagerduty_id:
               entity.metadata.annotations?.['pagerduty.com/service-id'],
             owner_group_ids: ownerGroupIds.length > 0 ? ownerGroupIds : undefined,
+            properties: properties.length > 0 ? properties : undefined,
           },
         },
       }),
@@ -961,12 +961,12 @@ export class RootlyApi {
           type: 'catalog_entities',
           attributes: {
             ...passthroughAttrs,
-            ...(properties.length > 0 ? { properties } : {}),
             name:
               entity.metadata.annotations?.[ROOTLY_ANNOTATION_CATALOG_ENTITY_NAME] ||
               entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
+            properties: properties.length > 0 ? properties : undefined,
           },
         },
       }),
@@ -1017,12 +1017,12 @@ export class RootlyApi {
           type: 'catalog_entities',
           attributes: {
             ...passthroughAttrs,
-            ...(properties.length > 0 ? { properties } : {}),
             name:
               entity.metadata.annotations?.[ROOTLY_ANNOTATION_CATALOG_ENTITY_NAME] ||
               entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
+            properties: properties.length > 0 ? properties : undefined,
           },
         },
       }),
