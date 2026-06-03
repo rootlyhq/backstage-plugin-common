@@ -1,5 +1,18 @@
 # @rootly/backstage-plugin-common
 
+## 1.4.0 - 2026-06-03
+
+### Added
+- Annotation-to-attribute passthrough: set any Rootly API attribute via `rootly.com/<entity>-attr-<key>` annotations on services, functionalities, teams, and catalog entities
+- Annotation-to-property mapping: populate custom catalog properties via `rootly.com/<entity>-property-<slug_or_id>` annotations on services and catalog entities
+- Value coercion: `"true"`/`"false"` → boolean, JSON arrays/objects parsed, plain strings passed through
+- 6 new annotation prefix constants (`SERVICE_ATTR_PREFIX`, `SERVICE_PROPERTY_PREFIX`, `FUNCTIONALITY_ATTR_PREFIX`, `TEAM_ATTR_PREFIX`, `CATALOG_ENTITY_ATTR_PREFIX`, `CATALOG_ENTITY_PROPERTY_PREFIX`)
+- Exported `extractPassthroughAttributes()` and `extractProperties()` utility functions
+- 19 unit tests for extraction and override safety
+
+### Security
+- Hardcoded fields (`name`, `backstage_id`, `pagerduty_id`, `owner_group_ids`, `properties`) always override passthrough annotations
+
 ## 1.3.0 - 2026-05-01
 
 ### Added
