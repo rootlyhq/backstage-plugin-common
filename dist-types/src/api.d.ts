@@ -168,6 +168,13 @@ export interface RootlyCatalogEntitiesResponse {
     };
     data: RootlyCatalogEntity[];
 }
+/** @public */
+export declare function extractPassthroughAttributes(annotations: Record<string, string> | undefined, prefix: string): Record<string, unknown>;
+/** @public */
+export declare function extractProperties(annotations: Record<string, string> | undefined, prefix: string): Array<{
+    catalog_property_id: string;
+    value: string;
+}>;
 type Options = {
     /**
      * apiProxyUrl used to access Rootly API through proxy

@@ -1,7 +1,34 @@
 import { stringifyEntityRef } from '@backstage/catalog-model';
 import qs from 'qs';
-import { ROOTLY_ANNOTATION_SERVICE_NAME, ROOTLY_ANNOTATION_FUNCTIONALITY_NAME, ROOTLY_ANNOTATION_TEAM_NAME, ROOTLY_ANNOTATION_CATALOG_ENTITY_NAME } from './constants.esm.js';
+import { ROOTLY_ANNOTATION_SERVICE_NAME, ROOTLY_ANNOTATION_FUNCTIONALITY_NAME, ROOTLY_ANNOTATION_TEAM_NAME, ROOTLY_ANNOTATION_CATALOG_ENTITY_NAME, ROOTLY_ANNOTATION_SERVICE_ATTR_PREFIX, ROOTLY_ANNOTATION_SERVICE_PROPERTY_PREFIX, ROOTLY_ANNOTATION_FUNCTIONALITY_ATTR_PREFIX, ROOTLY_ANNOTATION_TEAM_ATTR_PREFIX, ROOTLY_ANNOTATION_CATALOG_ENTITY_ATTR_PREFIX, ROOTLY_ANNOTATION_CATALOG_ENTITY_PROPERTY_PREFIX } from './constants.esm.js';
 
+function extractAnnotationEntries(annotations, prefix) {
+  if (!annotations) return [];
+  return Object.entries(annotations).filter(([k]) => k.startsWith(prefix)).map(([k, v]) => [k.slice(prefix.length), v]).filter(([k]) => k !== "");
+}
+function coerceAnnotationValue(value) {
+  if (value === "true") return true;
+  if (value === "false") return false;
+  if ((value.startsWith("[") || value.startsWith("{")) && value.length > 1) {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return value;
+    }
+  }
+  return value;
+}
+function extractPassthroughAttributes(annotations, prefix) {
+  return Object.fromEntries(
+    extractAnnotationEntries(annotations, prefix).map(([k, v]) => [k, coerceAnnotationValue(v)])
+  );
+}
+function extractProperties(annotations, prefix) {
+  return extractAnnotationEntries(annotations, prefix).map(([k, v]) => ({
+    catalog_property_id: k,
+    value: v
+  }));
+}
 const DEFAULT_PROXY_PATH = "/rootly/api";
 class RootlyApi {
   apiProxyUrl;
@@ -170,6 +197,8 @@ class RootlyApi {
       name: entity.metadata.name
     });
     const ownerGroupIds = await this.resolveOwnerGroupIds(entity);
+    const passthroughAttrs = extractPassthroughAttributes(entity.metadata.annotations, ROOTLY_ANNOTATION_SERVICE_ATTR_PREFIX);
+    const properties = extractProperties(entity.metadata.annotations, ROOTLY_ANNOTATION_SERVICE_PROPERTY_PREFIX);
     const init = {
       method: "POST",
       headers: { "Content-Type": "application/vnd.api+json" },
@@ -177,11 +206,13 @@ class RootlyApi {
         data: {
           type: "services",
           attributes: {
+            ...passthroughAttrs,
             name: entity.metadata.annotations?.[ROOTLY_ANNOTATION_SERVICE_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
             pagerduty_id: entity.metadata.annotations?.["pagerduty.com/service-id"],
-            owner_group_ids: ownerGroupIds.length > 0 ? ownerGroupIds : void 0
+            owner_group_ids: ownerGroupIds.length > 0 ? ownerGroupIds : void 0,
+            properties: properties.length > 0 ? properties : void 0
           }
         }
       })
@@ -211,6 +242,8 @@ class RootlyApi {
       await this.call(`/v1/services/${old_service.id}`, init1);
     }
     const ownerGroupIds = await this.resolveOwnerGroupIds(entity);
+    const passthroughAttrs = extractPassthroughAttributes(entity.metadata.annotations, ROOTLY_ANNOTATION_SERVICE_ATTR_PREFIX);
+    const properties = extractProperties(entity.metadata.annotations, ROOTLY_ANNOTATION_SERVICE_PROPERTY_PREFIX);
     const init2 = {
       method: "PUT",
       headers: { "Content-Type": "application/vnd.api+json" },
@@ -218,11 +251,13 @@ class RootlyApi {
         data: {
           type: "services",
           attributes: {
+            ...passthroughAttrs,
             name: entity.metadata.annotations?.[ROOTLY_ANNOTATION_SERVICE_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
             pagerduty_id: entity.metadata.annotations?.["pagerduty.com/service-id"],
-            owner_group_ids: ownerGroupIds.length > 0 ? ownerGroupIds : void 0
+            owner_group_ids: ownerGroupIds.length > 0 ? ownerGroupIds : void 0,
+            properties: properties.length > 0 ? properties : void 0
           }
         }
       })
@@ -254,6 +289,7 @@ class RootlyApi {
       kind: entity.kind,
       name: entity.metadata.name
     });
+    const passthroughAttrs = extractPassthroughAttributes(entity.metadata.annotations, ROOTLY_ANNOTATION_FUNCTIONALITY_ATTR_PREFIX);
     const init = {
       method: "POST",
       headers: { "Content-Type": "application/vnd.api+json" },
@@ -261,6 +297,7 @@ class RootlyApi {
         data: {
           type: "functionalities",
           attributes: {
+            ...passthroughAttrs,
             name: entity.metadata.annotations?.[ROOTLY_ANNOTATION_FUNCTIONALITY_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
@@ -296,6 +333,7 @@ class RootlyApi {
       };
       await this.call(`/v1/functionalities/${old_functionality.id}`, init1);
     }
+    const passthroughAttrs = extractPassthroughAttributes(entity.metadata.annotations, ROOTLY_ANNOTATION_FUNCTIONALITY_ATTR_PREFIX);
     const init2 = {
       method: "PUT",
       headers: { "Content-Type": "application/vnd.api+json" },
@@ -303,6 +341,7 @@ class RootlyApi {
         data: {
           type: "functionalities",
           attributes: {
+            ...passthroughAttrs,
             name: entity.metadata.annotations?.[ROOTLY_ANNOTATION_FUNCTIONALITY_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
@@ -338,6 +377,7 @@ class RootlyApi {
       kind: entity.kind,
       name: entity.metadata.name
     });
+    const passthroughAttrs = extractPassthroughAttributes(entity.metadata.annotations, ROOTLY_ANNOTATION_TEAM_ATTR_PREFIX);
     const init = {
       method: "POST",
       headers: { "Content-Type": "application/vnd.api+json" },
@@ -345,6 +385,7 @@ class RootlyApi {
         data: {
           type: "teams",
           attributes: {
+            ...passthroughAttrs,
             name: entity.metadata.annotations?.[ROOTLY_ANNOTATION_TEAM_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
@@ -377,6 +418,7 @@ class RootlyApi {
       };
       await this.call(`/v1/teams/${old_team.id}`, init1);
     }
+    const passthroughAttrs = extractPassthroughAttributes(entity.metadata.annotations, ROOTLY_ANNOTATION_TEAM_ATTR_PREFIX);
     const init2 = {
       method: "PUT",
       headers: { "Content-Type": "application/vnd.api+json" },
@@ -384,6 +426,7 @@ class RootlyApi {
         data: {
           type: "teams",
           attributes: {
+            ...passthroughAttrs,
             name: entity.metadata.annotations?.[ROOTLY_ANNOTATION_TEAM_NAME] || entity.metadata.name,
             description: entity.metadata.description,
             backstage_id: entityTriplet,
@@ -486,6 +529,8 @@ class RootlyApi {
       kind: entity.kind,
       name: entity.metadata.name
     });
+    const passthroughAttrs = extractPassthroughAttributes(entity.metadata.annotations, ROOTLY_ANNOTATION_CATALOG_ENTITY_ATTR_PREFIX);
+    const properties = extractProperties(entity.metadata.annotations, ROOTLY_ANNOTATION_CATALOG_ENTITY_PROPERTY_PREFIX);
     const init = {
       method: "POST",
       headers: { "Content-Type": "application/vnd.api+json" },
@@ -493,9 +538,11 @@ class RootlyApi {
         data: {
           type: "catalog_entities",
           attributes: {
+            ...passthroughAttrs,
             name: entity.metadata.annotations?.[ROOTLY_ANNOTATION_CATALOG_ENTITY_NAME] || entity.metadata.name,
             description: entity.metadata.description,
-            backstage_id: entityTriplet
+            backstage_id: entityTriplet,
+            properties: properties.length > 0 ? properties : void 0
           }
         }
       })
@@ -527,6 +574,8 @@ class RootlyApi {
       };
       await this.call(`/v1/catalog_entities/${old_catalogEntity.id}`, init1);
     }
+    const passthroughAttrs = extractPassthroughAttributes(entity.metadata.annotations, ROOTLY_ANNOTATION_CATALOG_ENTITY_ATTR_PREFIX);
+    const properties = extractProperties(entity.metadata.annotations, ROOTLY_ANNOTATION_CATALOG_ENTITY_PROPERTY_PREFIX);
     const init2 = {
       method: "PUT",
       headers: { "Content-Type": "application/vnd.api+json" },
@@ -534,9 +583,11 @@ class RootlyApi {
         data: {
           type: "catalog_entities",
           attributes: {
+            ...passthroughAttrs,
             name: entity.metadata.annotations?.[ROOTLY_ANNOTATION_CATALOG_ENTITY_NAME] || entity.metadata.name,
             description: entity.metadata.description,
-            backstage_id: entityTriplet
+            backstage_id: entityTriplet,
+            properties: properties.length > 0 ? properties : void 0
           }
         }
       })
@@ -606,5 +657,5 @@ class RootlyApi {
   }
 }
 
-export { RootlyApi };
+export { RootlyApi, extractPassthroughAttributes, extractProperties };
 //# sourceMappingURL=api.esm.js.map

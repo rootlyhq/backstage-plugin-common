@@ -249,7 +249,7 @@ function extractAnnotationEntries(
   if (!annotations) return [];
   return Object.entries(annotations)
     .filter(([k]) => k.startsWith(prefix))
-    .map(([k, v]) => [k.slice(prefix.length), v])
+    .map(([k, v]): [string, string] => [k.slice(prefix.length), v])
     .filter(([k]) => k !== '');
 }
 

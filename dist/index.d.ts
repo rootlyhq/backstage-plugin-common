@@ -240,6 +240,18 @@ declare const ROOTLY_ANNOTATION_CATALOG_ID = "rootly.com/catalog-id";
 declare const ROOTLY_ANNOTATION_CATALOG_SLUG = "rootly.com/catalog-slug";
 /** @public */
 declare const ROOTLY_ANNOTATION_CATALOG_DESCRIPTION = "rootly.com/catalog-description";
+/** @public */
+declare const ROOTLY_ANNOTATION_SERVICE_ATTR_PREFIX = "rootly.com/service-attr-";
+/** @public */
+declare const ROOTLY_ANNOTATION_SERVICE_PROPERTY_PREFIX = "rootly.com/service-property-";
+/** @public */
+declare const ROOTLY_ANNOTATION_FUNCTIONALITY_ATTR_PREFIX = "rootly.com/functionality-attr-";
+/** @public */
+declare const ROOTLY_ANNOTATION_TEAM_ATTR_PREFIX = "rootly.com/team-attr-";
+/** @public */
+declare const ROOTLY_ANNOTATION_CATALOG_ENTITY_ATTR_PREFIX = "rootly.com/catalog-entity-attr-";
+/** @public */
+declare const ROOTLY_ANNOTATION_CATALOG_ENTITY_PROPERTY_PREFIX = "rootly.com/catalog-entity-property-";
 
 type RootlyServicesFetchOpts = {
     page?: {
@@ -410,6 +422,13 @@ interface RootlyCatalogEntitiesResponse {
     };
     data: RootlyCatalogEntity[];
 }
+/** @public */
+declare function extractPassthroughAttributes(annotations: Record<string, string> | undefined, prefix: string): Record<string, unknown>;
+/** @public */
+declare function extractProperties(annotations: Record<string, string> | undefined, prefix: string): Array<{
+    catalog_property_id: string;
+    value: string;
+}>;
 type Options = {
     /**
      * apiProxyUrl used to access Rootly API through proxy
@@ -499,4 +518,4 @@ declare class RootlyApi {
     getCatalogEntityDetailsURL(catalogEntity: RootlyCatalogEntity, catalogSlug?: string): string;
 }
 
-export { ROOTLY_ANNOTATION_CATALOG_DESCRIPTION, ROOTLY_ANNOTATION_CATALOG_ENTITY_AUTO_IMPORT, ROOTLY_ANNOTATION_CATALOG_ENTITY_ID, ROOTLY_ANNOTATION_CATALOG_ENTITY_NAME, ROOTLY_ANNOTATION_CATALOG_ENTITY_SLUG, ROOTLY_ANNOTATION_CATALOG_ID, ROOTLY_ANNOTATION_CATALOG_SLUG, ROOTLY_ANNOTATION_FUNCTIONALITY_AUTO_IMPORT, ROOTLY_ANNOTATION_FUNCTIONALITY_ID, ROOTLY_ANNOTATION_FUNCTIONALITY_NAME, ROOTLY_ANNOTATION_FUNCTIONALITY_SLUG, ROOTLY_ANNOTATION_ORG_ID, ROOTLY_ANNOTATION_SERVICE_AUTO_IMPORT, ROOTLY_ANNOTATION_SERVICE_ID, ROOTLY_ANNOTATION_SERVICE_NAME, ROOTLY_ANNOTATION_SERVICE_SLUG, ROOTLY_ANNOTATION_TEAM_AUTO_IMPORT, ROOTLY_ANNOTATION_TEAM_ID, ROOTLY_ANNOTATION_TEAM_NAME, ROOTLY_ANNOTATION_TEAM_SLUG, type Rootly, RootlyApi, type RootlyCatalog, type RootlyCatalogEntitiesFetchOpts, type RootlyCatalogEntitiesResponse, type RootlyCatalogEntity, type RootlyCatalogEntityResponse, type RootlyCatalogResponse, type RootlyCatalogsFetchOpts, type RootlyCatalogsResponse, type RootlyEntity, type RootlyEnvironment, type RootlyFunctionalitiesFetchOpts, type RootlyFunctionalitiesResponse, type RootlyFunctionality, type RootlyFunctionalityResponse, type RootlyIncident, type RootlyIncidentType, type RootlyIncidentsFetchOpts, type RootlyIncidentsResponse, type RootlyRelationship, type RootlyResponderRef, type RootlyService, type RootlyServiceResponse, type RootlyServicesFetchOpts, type RootlyServicesResponse, type RootlySeverity, type RootlyTeam, type RootlyTeamResponse, type RootlyTeamsFetchOpts, type RootlyTeamsResponse, type RootlyUser };
+export { ROOTLY_ANNOTATION_CATALOG_DESCRIPTION, ROOTLY_ANNOTATION_CATALOG_ENTITY_ATTR_PREFIX, ROOTLY_ANNOTATION_CATALOG_ENTITY_AUTO_IMPORT, ROOTLY_ANNOTATION_CATALOG_ENTITY_ID, ROOTLY_ANNOTATION_CATALOG_ENTITY_NAME, ROOTLY_ANNOTATION_CATALOG_ENTITY_PROPERTY_PREFIX, ROOTLY_ANNOTATION_CATALOG_ENTITY_SLUG, ROOTLY_ANNOTATION_CATALOG_ID, ROOTLY_ANNOTATION_CATALOG_SLUG, ROOTLY_ANNOTATION_FUNCTIONALITY_ATTR_PREFIX, ROOTLY_ANNOTATION_FUNCTIONALITY_AUTO_IMPORT, ROOTLY_ANNOTATION_FUNCTIONALITY_ID, ROOTLY_ANNOTATION_FUNCTIONALITY_NAME, ROOTLY_ANNOTATION_FUNCTIONALITY_SLUG, ROOTLY_ANNOTATION_ORG_ID, ROOTLY_ANNOTATION_SERVICE_ATTR_PREFIX, ROOTLY_ANNOTATION_SERVICE_AUTO_IMPORT, ROOTLY_ANNOTATION_SERVICE_ID, ROOTLY_ANNOTATION_SERVICE_NAME, ROOTLY_ANNOTATION_SERVICE_PROPERTY_PREFIX, ROOTLY_ANNOTATION_SERVICE_SLUG, ROOTLY_ANNOTATION_TEAM_ATTR_PREFIX, ROOTLY_ANNOTATION_TEAM_AUTO_IMPORT, ROOTLY_ANNOTATION_TEAM_ID, ROOTLY_ANNOTATION_TEAM_NAME, ROOTLY_ANNOTATION_TEAM_SLUG, type Rootly, RootlyApi, type RootlyCatalog, type RootlyCatalogEntitiesFetchOpts, type RootlyCatalogEntitiesResponse, type RootlyCatalogEntity, type RootlyCatalogEntityResponse, type RootlyCatalogResponse, type RootlyCatalogsFetchOpts, type RootlyCatalogsResponse, type RootlyEntity, type RootlyEnvironment, type RootlyFunctionalitiesFetchOpts, type RootlyFunctionalitiesResponse, type RootlyFunctionality, type RootlyFunctionalityResponse, type RootlyIncident, type RootlyIncidentType, type RootlyIncidentsFetchOpts, type RootlyIncidentsResponse, type RootlyRelationship, type RootlyResponderRef, type RootlyService, type RootlyServiceResponse, type RootlyServicesFetchOpts, type RootlyServicesResponse, type RootlySeverity, type RootlyTeam, type RootlyTeamResponse, type RootlyTeamsFetchOpts, type RootlyTeamsResponse, type RootlyUser, extractPassthroughAttributes, extractProperties };
