@@ -1,5 +1,16 @@
 # @rootly/backstage-plugin-common
 
+## 1.4.1 - 2026-07-29
+
+### Changed
+- Upgrade qs, Backstage CLI, commitlint, Jest, and jsdom tooling
+- Refresh vulnerable transitive dependencies
+- Make the ESLint configuration explicitly repository-rooted
+
+### Compatibility
+- No public API or runtime behavior changes
+- Retain the supported TypeScript 5 range
+
 ## 1.4.0 - 2026-06-03
 
 ### Added
