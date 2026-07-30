@@ -19,5 +19,8 @@ jobs:
       - run: npm install -g npm@latest
       - run: corepack enable
       - run: yarn install --immutable
+      - run: yarn lint
+      - run: yarn test --watchAll=false
       - run: yarn build
+      - run: npm publish --dry-run --access public
       - run: npm publish --provenance --access public
