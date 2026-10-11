@@ -305,7 +305,7 @@ type Options = {
    * apiToken used to access Backstage backend
    * Example: Bearer 12345678910
    */
-  apiToken: Promise<{ token?: string | undefined }>;
+  apiToken: Promise<{ token?: string | undefined }> | (() => Promise<{ token?: string | undefined }>);
 
   /**
    * apiHost for Rootly web UI links
@@ -320,7 +320,7 @@ type Options = {
 export class RootlyApi {
   private readonly apiProxyUrl: Promise<string>;
   private readonly apiProxyPath: string;
-  private readonly apiToken: Promise<{ token?: string | undefined }>;
+  private readonly apiToken: Promise<{ token?: string | undefined }> | (() => Promise<{ token?: string | undefined }>);
   private readonly apiHost: string;
 
   constructor(opts: Options) {
@@ -380,7 +380,11 @@ export class RootlyApi {
 
   private async addAuthHeaders(init: RequestInit): Promise<RequestInit> {
     const headers = init.headers || {};
-    const { token } = await this.apiToken;
+    const { token } = await (
+      typeof this.apiToken === 'function'
+        ? this.apiToken()
+        : this.apiToken
+    );
 
     return {
       ...init,
