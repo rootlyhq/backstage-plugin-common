@@ -81,7 +81,7 @@ class RootlyApi {
   }
   async addAuthHeaders(init) {
     const headers = init.headers || {};
-    const { token } = await this.apiToken;
+    const { token } = await (typeof this.apiToken === "function" ? this.apiToken() : this.apiToken);
     return {
       ...init,
       headers: {

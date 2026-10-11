@@ -446,7 +446,9 @@ type Options = {
      */
     apiToken: Promise<{
         token?: string | undefined;
-    }>;
+    }> | (() => Promise<{
+        token?: string | undefined;
+    }>);
     /**
      * apiHost for Rootly web UI links
      * Example: https://rootly.com or https://staging.rootly.com
