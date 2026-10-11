@@ -150,6 +150,24 @@ class RootlyApi {
     );
     return response;
   }
+  async getSeverities(opts) {
+    const init = { headers: { "Content-Type": "application/vnd.api+json" } };
+    const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });
+    const response = await this.fetch(
+      `/v1/severities?${params}`,
+      init
+    );
+    return response;
+  }
+  async getEnvironments(opts) {
+    const init = { headers: { "Content-Type": "application/vnd.api+json" } };
+    const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });
+    const response = await this.fetch(
+      `/v1/environments?${params}`,
+      init
+    );
+    return response;
+  }
   async getServiceIncidentsChart(service, opts) {
     const init = { headers: { "Content-Type": "application/vnd.api+json" } };
     const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });

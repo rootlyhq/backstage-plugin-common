@@ -284,6 +284,25 @@ type RootlyIncidentsFetchOpts = {
     };
     filter?: object;
     include?: string;
+    /**
+     * Comma-separated sort fields, prefix with `-` for descending.
+     * Example: `-started_at`
+     */
+    sort?: string;
+};
+type RootlySeveritiesFetchOpts = {
+    page?: {
+        number?: number;
+        size?: number;
+    };
+    filter?: object;
+};
+type RootlyEnvironmentsFetchOpts = {
+    page?: {
+        number?: number;
+        size?: number;
+    };
+    filter?: object;
 };
 type RootlyCatalogsFetchOpts = {
     page?: {
@@ -309,6 +328,8 @@ interface Rootly {
     getTeam(id_or_slug: String): Promise<RootlyTeamResponse>;
     getTeams(opts?: RootlyTeamsFetchOpts): Promise<RootlyTeamsResponse>;
     getIncidents(opts?: RootlyIncidentsFetchOpts): Promise<RootlyIncidentsResponse>;
+    getSeverities(opts?: RootlySeveritiesFetchOpts): Promise<RootlySeveritiesResponse>;
+    getEnvironments(opts?: RootlyEnvironmentsFetchOpts): Promise<RootlyEnvironmentsResponse>;
     importServiceEntity(entity: RootlyEntity): Promise<RootlyServiceResponse>;
     updateServiceEntity(entity: RootlyEntity, service: RootlyService, old_service?: RootlyService): Promise<RootlyServiceResponse>;
     deleteServiceEntity(service: RootlyService): Promise<void>;
@@ -381,6 +402,20 @@ interface RootlyTeamsResponse {
         total_pages: number;
     };
     data: RootlyTeam[];
+}
+interface RootlySeveritiesResponse {
+    meta: {
+        total_count: number;
+        total_pages: number;
+    };
+    data: RootlySeverity[];
+}
+interface RootlyEnvironmentsResponse {
+    meta: {
+        total_count: number;
+        total_pages: number;
+    };
+    data: RootlyEnvironment[];
 }
 interface RootlyIncidentsResponse {
     meta: {
@@ -475,6 +510,8 @@ declare class RootlyApi {
     getTeam(id_or_slug: String): Promise<RootlyTeamResponse>;
     getTeams(opts?: RootlyTeamsFetchOpts): Promise<RootlyTeamsResponse>;
     getIncidents(opts?: RootlyIncidentsFetchOpts): Promise<RootlyIncidentsResponse>;
+    getSeverities(opts?: RootlySeveritiesFetchOpts): Promise<RootlySeveritiesResponse>;
+    getEnvironments(opts?: RootlyEnvironmentsFetchOpts): Promise<RootlyEnvironmentsResponse>;
     getServiceIncidentsChart(service: RootlyService, opts?: {
         period: string;
     }): Promise<{
@@ -520,4 +557,4 @@ declare class RootlyApi {
     getCatalogEntityDetailsURL(catalogEntity: RootlyCatalogEntity, catalogSlug?: string): string;
 }
 
-export { ROOTLY_ANNOTATION_CATALOG_DESCRIPTION, ROOTLY_ANNOTATION_CATALOG_ENTITY_ATTR_PREFIX, ROOTLY_ANNOTATION_CATALOG_ENTITY_AUTO_IMPORT, ROOTLY_ANNOTATION_CATALOG_ENTITY_ID, ROOTLY_ANNOTATION_CATALOG_ENTITY_NAME, ROOTLY_ANNOTATION_CATALOG_ENTITY_PROPERTY_PREFIX, ROOTLY_ANNOTATION_CATALOG_ENTITY_SLUG, ROOTLY_ANNOTATION_CATALOG_ID, ROOTLY_ANNOTATION_CATALOG_SLUG, ROOTLY_ANNOTATION_FUNCTIONALITY_ATTR_PREFIX, ROOTLY_ANNOTATION_FUNCTIONALITY_AUTO_IMPORT, ROOTLY_ANNOTATION_FUNCTIONALITY_ID, ROOTLY_ANNOTATION_FUNCTIONALITY_NAME, ROOTLY_ANNOTATION_FUNCTIONALITY_SLUG, ROOTLY_ANNOTATION_ORG_ID, ROOTLY_ANNOTATION_SERVICE_ATTR_PREFIX, ROOTLY_ANNOTATION_SERVICE_AUTO_IMPORT, ROOTLY_ANNOTATION_SERVICE_ID, ROOTLY_ANNOTATION_SERVICE_NAME, ROOTLY_ANNOTATION_SERVICE_PROPERTY_PREFIX, ROOTLY_ANNOTATION_SERVICE_SLUG, ROOTLY_ANNOTATION_TEAM_ATTR_PREFIX, ROOTLY_ANNOTATION_TEAM_AUTO_IMPORT, ROOTLY_ANNOTATION_TEAM_ID, ROOTLY_ANNOTATION_TEAM_NAME, ROOTLY_ANNOTATION_TEAM_SLUG, type Rootly, RootlyApi, type RootlyCatalog, type RootlyCatalogEntitiesFetchOpts, type RootlyCatalogEntitiesResponse, type RootlyCatalogEntity, type RootlyCatalogEntityResponse, type RootlyCatalogResponse, type RootlyCatalogsFetchOpts, type RootlyCatalogsResponse, type RootlyEntity, type RootlyEnvironment, type RootlyFunctionalitiesFetchOpts, type RootlyFunctionalitiesResponse, type RootlyFunctionality, type RootlyFunctionalityResponse, type RootlyIncident, type RootlyIncidentType, type RootlyIncidentsFetchOpts, type RootlyIncidentsResponse, type RootlyRelationship, type RootlyResponderRef, type RootlyService, type RootlyServiceResponse, type RootlyServicesFetchOpts, type RootlyServicesResponse, type RootlySeverity, type RootlyTeam, type RootlyTeamResponse, type RootlyTeamsFetchOpts, type RootlyTeamsResponse, type RootlyUser, extractPassthroughAttributes, extractProperties };
+export { ROOTLY_ANNOTATION_CATALOG_DESCRIPTION, ROOTLY_ANNOTATION_CATALOG_ENTITY_ATTR_PREFIX, ROOTLY_ANNOTATION_CATALOG_ENTITY_AUTO_IMPORT, ROOTLY_ANNOTATION_CATALOG_ENTITY_ID, ROOTLY_ANNOTATION_CATALOG_ENTITY_NAME, ROOTLY_ANNOTATION_CATALOG_ENTITY_PROPERTY_PREFIX, ROOTLY_ANNOTATION_CATALOG_ENTITY_SLUG, ROOTLY_ANNOTATION_CATALOG_ID, ROOTLY_ANNOTATION_CATALOG_SLUG, ROOTLY_ANNOTATION_FUNCTIONALITY_ATTR_PREFIX, ROOTLY_ANNOTATION_FUNCTIONALITY_AUTO_IMPORT, ROOTLY_ANNOTATION_FUNCTIONALITY_ID, ROOTLY_ANNOTATION_FUNCTIONALITY_NAME, ROOTLY_ANNOTATION_FUNCTIONALITY_SLUG, ROOTLY_ANNOTATION_ORG_ID, ROOTLY_ANNOTATION_SERVICE_ATTR_PREFIX, ROOTLY_ANNOTATION_SERVICE_AUTO_IMPORT, ROOTLY_ANNOTATION_SERVICE_ID, ROOTLY_ANNOTATION_SERVICE_NAME, ROOTLY_ANNOTATION_SERVICE_PROPERTY_PREFIX, ROOTLY_ANNOTATION_SERVICE_SLUG, ROOTLY_ANNOTATION_TEAM_ATTR_PREFIX, ROOTLY_ANNOTATION_TEAM_AUTO_IMPORT, ROOTLY_ANNOTATION_TEAM_ID, ROOTLY_ANNOTATION_TEAM_NAME, ROOTLY_ANNOTATION_TEAM_SLUG, type Rootly, RootlyApi, type RootlyCatalog, type RootlyCatalogEntitiesFetchOpts, type RootlyCatalogEntitiesResponse, type RootlyCatalogEntity, type RootlyCatalogEntityResponse, type RootlyCatalogResponse, type RootlyCatalogsFetchOpts, type RootlyCatalogsResponse, type RootlyEntity, type RootlyEnvironment, type RootlyEnvironmentsFetchOpts, type RootlyEnvironmentsResponse, type RootlyFunctionalitiesFetchOpts, type RootlyFunctionalitiesResponse, type RootlyFunctionality, type RootlyFunctionalityResponse, type RootlyIncident, type RootlyIncidentType, type RootlyIncidentsFetchOpts, type RootlyIncidentsResponse, type RootlyRelationship, type RootlyResponderRef, type RootlyService, type RootlyServiceResponse, type RootlyServicesFetchOpts, type RootlyServicesResponse, type RootlySeveritiesFetchOpts, type RootlySeveritiesResponse, type RootlySeverity, type RootlyTeam, type RootlyTeamResponse, type RootlyTeamsFetchOpts, type RootlyTeamsResponse, type RootlyUser, extractPassthroughAttributes, extractProperties };

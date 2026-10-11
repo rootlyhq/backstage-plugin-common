@@ -2,7 +2,9 @@ import { stringifyEntityRef } from '@backstage/catalog-model';
 import qs from 'qs';
 import {
   RootlyEntity,
+  RootlyEnvironment,
   RootlyIncident,
+  RootlySeverity,
   RootlyService,
   RootlyFunctionality,
   RootlyTeam,
@@ -56,6 +58,27 @@ export type RootlyIncidentsFetchOpts = {
   };
   filter?: object;
   include?: string;
+  /**
+   * Comma-separated sort fields, prefix with `-` for descending.
+   * Example: `-started_at`
+   */
+  sort?: string;
+};
+
+export type RootlySeveritiesFetchOpts = {
+  page?: {
+    number?: number;
+    size?: number;
+  };
+  filter?: object;
+};
+
+export type RootlyEnvironmentsFetchOpts = {
+  page?: {
+    number?: number;
+    size?: number;
+  };
+  filter?: object;
 };
 
 
@@ -89,6 +112,12 @@ export interface Rootly {
   getIncidents(
     opts?: RootlyIncidentsFetchOpts,
   ): Promise<RootlyIncidentsResponse>;
+  getSeverities(
+    opts?: RootlySeveritiesFetchOpts,
+  ): Promise<RootlySeveritiesResponse>;
+  getEnvironments(
+    opts?: RootlyEnvironmentsFetchOpts,
+  ): Promise<RootlyEnvironmentsResponse>;
 
   importServiceEntity(entity: RootlyEntity): Promise<RootlyServiceResponse>;
   updateServiceEntity(
@@ -199,6 +228,22 @@ export interface RootlyTeamsResponse {
     total_pages: number;
   };
   data: RootlyTeam[];
+}
+
+export interface RootlySeveritiesResponse {
+  meta: {
+    total_count: number;
+    total_pages: number;
+  };
+  data: RootlySeverity[];
+}
+
+export interface RootlyEnvironmentsResponse {
+  meta: {
+    total_count: number;
+    total_pages: number;
+  };
+  data: RootlyEnvironment[];
 }
 
 export interface RootlyIncidentsResponse {
@@ -465,6 +510,30 @@ export class RootlyApi {
     const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });
     const response = await this.fetch<RootlyIncidentsResponse>(
       `/v1/incidents?${params}`,
+      init,
+    );
+    return response;
+  }
+
+  async getSeverities(
+    opts?: RootlySeveritiesFetchOpts,
+  ): Promise<RootlySeveritiesResponse> {
+    const init = { headers: { 'Content-Type': 'application/vnd.api+json' } };
+    const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });
+    const response = await this.fetch<RootlySeveritiesResponse>(
+      `/v1/severities?${params}`,
+      init,
+    );
+    return response;
+  }
+
+  async getEnvironments(
+    opts?: RootlyEnvironmentsFetchOpts,
+  ): Promise<RootlyEnvironmentsResponse> {
+    const init = { headers: { 'Content-Type': 'application/vnd.api+json' } };
+    const params = qs.stringify(this.removeEmptyAttributes(opts), { encode: false });
+    const response = await this.fetch<RootlyEnvironmentsResponse>(
+      `/v1/environments?${params}`,
       init,
     );
     return response;

@@ -1,4 +1,4 @@
-import { RootlyEntity, RootlyIncident, RootlyService, RootlyFunctionality, RootlyTeam, RootlyCatalog, RootlyCatalogEntity } from './types';
+import { RootlyEntity, RootlyEnvironment, RootlyIncident, RootlySeverity, RootlyService, RootlyFunctionality, RootlyTeam, RootlyCatalog, RootlyCatalogEntity } from './types';
 export type RootlyServicesFetchOpts = {
     page?: {
         number?: number;
@@ -30,6 +30,25 @@ export type RootlyIncidentsFetchOpts = {
     };
     filter?: object;
     include?: string;
+    /**
+     * Comma-separated sort fields, prefix with `-` for descending.
+     * Example: `-started_at`
+     */
+    sort?: string;
+};
+export type RootlySeveritiesFetchOpts = {
+    page?: {
+        number?: number;
+        size?: number;
+    };
+    filter?: object;
+};
+export type RootlyEnvironmentsFetchOpts = {
+    page?: {
+        number?: number;
+        size?: number;
+    };
+    filter?: object;
 };
 export type RootlyCatalogsFetchOpts = {
     page?: {
@@ -55,6 +74,8 @@ export interface Rootly {
     getTeam(id_or_slug: String): Promise<RootlyTeamResponse>;
     getTeams(opts?: RootlyTeamsFetchOpts): Promise<RootlyTeamsResponse>;
     getIncidents(opts?: RootlyIncidentsFetchOpts): Promise<RootlyIncidentsResponse>;
+    getSeverities(opts?: RootlySeveritiesFetchOpts): Promise<RootlySeveritiesResponse>;
+    getEnvironments(opts?: RootlyEnvironmentsFetchOpts): Promise<RootlyEnvironmentsResponse>;
     importServiceEntity(entity: RootlyEntity): Promise<RootlyServiceResponse>;
     updateServiceEntity(entity: RootlyEntity, service: RootlyService, old_service?: RootlyService): Promise<RootlyServiceResponse>;
     deleteServiceEntity(service: RootlyService): Promise<void>;
@@ -127,6 +148,20 @@ export interface RootlyTeamsResponse {
         total_pages: number;
     };
     data: RootlyTeam[];
+}
+export interface RootlySeveritiesResponse {
+    meta: {
+        total_count: number;
+        total_pages: number;
+    };
+    data: RootlySeverity[];
+}
+export interface RootlyEnvironmentsResponse {
+    meta: {
+        total_count: number;
+        total_pages: number;
+    };
+    data: RootlyEnvironment[];
 }
 export interface RootlyIncidentsResponse {
     meta: {
@@ -221,6 +256,8 @@ export declare class RootlyApi {
     getTeam(id_or_slug: String): Promise<RootlyTeamResponse>;
     getTeams(opts?: RootlyTeamsFetchOpts): Promise<RootlyTeamsResponse>;
     getIncidents(opts?: RootlyIncidentsFetchOpts): Promise<RootlyIncidentsResponse>;
+    getSeverities(opts?: RootlySeveritiesFetchOpts): Promise<RootlySeveritiesResponse>;
+    getEnvironments(opts?: RootlyEnvironmentsFetchOpts): Promise<RootlyEnvironmentsResponse>;
     getServiceIncidentsChart(service: RootlyService, opts?: {
         period: string;
     }): Promise<{
