@@ -1,5 +1,11 @@
 # @rootly/backstage-plugin-common
 
+## 1.6.0 - 2026-10-11
+
+### Added
+- `RootlyApi.getSeverities()` and `RootlyApi.getEnvironments()` (paginated, filterable lookups used by the incidents page filters)
+- `sort` option on `getIncidents()` for server-side sorting (e.g. `-started_at`)
+
 ## 1.5.0 - 2026-10-11
 
 ### Added

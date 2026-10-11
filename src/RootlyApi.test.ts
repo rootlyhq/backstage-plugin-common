@@ -84,3 +84,61 @@ describe('RootlyApi apiToken', () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 });
+
+describe('RootlyApi lookups', () => {
+  const originalFetch = global.fetch;
+  let fetchMock: jest.Mock;
+
+  beforeEach(() => {
+    fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      statusText: 'OK',
+      json: async () => ({ data: [], meta: { total_count: 0, total_pages: 0 } }),
+    });
+    global.fetch = fetchMock as unknown as typeof fetch;
+  });
+
+  afterEach(() => {
+    global.fetch = originalFetch;
+  });
+
+  const api = () =>
+    new RootlyApi({
+      apiProxyUrl: Promise.resolve('http://backstage.local/api/proxy'),
+      apiProxyPath: '/rootly/api',
+      apiToken: Promise.resolve({ token: 't' }),
+    });
+
+  const requestedUrl = () => fetchMock.mock.calls[0][0] as string;
+
+  it('lists severities with search and pagination', async () => {
+    await api().getSeverities({
+      page: { size: 50 },
+      filter: { search: 'sev' },
+    });
+
+    expect(requestedUrl()).toBe(
+      'http://backstage.local/api/proxy/rootly/api/v1/severities?page[size]=50&filter[search]=sev',
+    );
+  });
+
+  it('lists environments with search and pagination', async () => {
+    await api().getEnvironments({
+      page: { size: 50 },
+      filter: { search: 'prod' },
+    });
+
+    expect(requestedUrl()).toBe(
+      'http://backstage.local/api/proxy/rootly/api/v1/environments?page[size]=50&filter[search]=prod',
+    );
+  });
+
+  it('forwards the sort parameter for incidents', async () => {
+    await api().getIncidents({ page: { number: 2 }, sort: '-started_at' });
+
+    expect(requestedUrl()).toBe(
+      'http://backstage.local/api/proxy/rootly/api/v1/incidents?page[number]=2&sort=-started_at',
+    );
+  });
+});
