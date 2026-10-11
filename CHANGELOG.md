@@ -1,5 +1,21 @@
 # @rootly/backstage-plugin-common
 
+## 1.5.0 - 2026-10-11
+
+### Added
+- `RootlyApi` `apiToken` option now accepts a function returning `Promise<{ token?: string }>` in addition to a promise. The function is called on every request, so short-lived Backstage tokens are refreshed instead of being captured once at construction time (#31)
+- Unit tests for promise and function forms of `apiToken`
+
+### Changed
+- Align Backstage dependencies with Backstage release 1.55.3 (`@backstage/catalog-model` 1.10.1, `@backstage/cli` 0.36.6, `@backstage/cli-defaults` 0.1.6)
+- Upgrade qs to 6.16 and Jest to 30; replace `jest-environment-jsdom` with `@jest/environment-jsdom-abstract` + `jsdom` 27 as recommended by `@backstage/cli` 0.36
+- Toolchain: Node 24 and Yarn 4.13.0 via `mise.toml` and `packageManager`; declare `engines.node >=22`
+- Add a CI workflow running type checks, lint, tests, and build on pull requests and pushes to `master`
+- Refresh vulnerable transitive dependencies
+
+### Removed
+- Unused semantic-release and commitlint configuration, the vendored Yarn binary, and a duplicate root-level `dependabot.yml`
+
 ## 1.4.1 - 2026-07-29
 
 ### Changed
