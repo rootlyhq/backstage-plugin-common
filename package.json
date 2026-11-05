@@ -60,7 +60,7 @@
     "elliptic": "^6.6.1",
     "esbuild": "^0.28.1",
     "flatted": "^3.4.2",
-    "follow-redirects": "^1.16.0",
+    "follow-redirects": "^1.16.2",
     "glob": "^10.5.0",
     "handlebars": "^4.7.10",
     "http-proxy-middleware": "^2.0.10",
